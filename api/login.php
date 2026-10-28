@@ -1,6 +1,8 @@
 <?php
 
-session_start();
+require_once __DIR__ . '/../src/session.php';
+
+startSecureSession();
 
 header('Content-Type: application/json');
 
