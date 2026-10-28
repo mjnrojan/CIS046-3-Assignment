@@ -1,0 +1,25 @@
+body {
+    background: #ffffff;
+    color: #111111;
+    font-family: sans-serif;
+}
+
+main {
+    max-width: 40rem;
+    margin: 2rem auto;
+}
+
+img {
+    display: block;
+    max-width: 100%;
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+#message {
+    min-height: 1.5rem;
+}

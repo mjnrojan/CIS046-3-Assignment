@@ -3,9 +3,21 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Banana puzzle</title>
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    
+    <main>
+        <h1>Banana puzzle</h1>
+        <img id="puzzle" alt="The puzzle image loads here">
+        <form id="answer-form">
+            <label for="guess">How many bananas? Enter a number from 0 to 9.</label>
+            <input id="guess" name="guess" type="number" min="0" max="9" required>
+            <button type="submit">Submit</button>
+        </form>
+        <p id="message" role="status"></p>
+    </main>
+    <script src="js/api.js"></script>
+    <script src="js/puzzle.js"></script>
 </body>
 </html>
