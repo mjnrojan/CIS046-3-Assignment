@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login – Banana Game</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <main>
+        <h1>Banana Game</h1>
+
+        <!-- Login form shown by default -->
+        <form id="login-form">
+            <h2>Login</h2>
+            <label for="login-username">Username</label>
+            <input id="login-username" type="text" minlength="3" maxlength="50" required>
+
+            <label for="login-password">Password</label>
+            <input id="login-password" type="password" minlength="6" required>
+
+            <button type="submit">Login</button>
+        </form>
+
+        <!-- Register form hidden until the user clicks the toggle -->
+        <form id="register-form" hidden>
+            <h2>Register</h2>
+            <label for="reg-username">Username</label>
+            <input id="reg-username" type="text" minlength="3" maxlength="50" required>
+
+            <label for="reg-password">Password</label>
+            <input id="reg-password" type="password" minlength="6" required>
+
+            <button type="submit">Register</button>
+        </form>
+
+        <p id="message" role="status"></p>
+
+        <p id="toggle-text">
+            No account? <a href="#" id="toggle-link">Register here</a>
+        </p>
+    </main>
+    <script src="js/auth.js"></script>
+</body>
+</html>
