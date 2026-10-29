@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Play – Banana Game</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Game container styles */
+        .game-wrapper {
+            max-width: 800px;
+            margin: 1.5rem auto;
+            position: relative;
+        }
+
+        /* HUD bar displayed above the canvas */
+        .hud {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            padding: 0.75rem 1rem;
+            background: #2c3e50;
+            color: #ecf0f1;
+            font-weight: bold;
+            border-radius: 4px 4px 0 0;
+        }
+
+        /* 2D platformer canvas */
+        #game-canvas {
+            display: block;
+            background: #87CEEB;
+            border: 2px solid #2c3e50;
+            border-top: none;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Status message below canvas */
+        #game-message {
+            min-height: 1.5rem;
+            margin: 0.75rem 0;
+            font-weight: bold;
+            color: #2c3e50;
+            text-align: center;
+        }
+
+        /* Instructions */
+        .controls-hint {
+            font-size: 0.9rem;
+            color: #555555;
+            text-align: center;
+            margin-top: 0.25rem;
+        }
+
+        /* Modal overlay when touching a puzzle scroll */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.65);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 100;
+        }
+
+        /* Hidden attribute support */
+        .modal-overlay[hidden] {
+            display: none !important;
+        }
+
+        .modal-card {
+            background: #ffffff;
+            padding: 1.5rem;
+            border-radius: 8px;
+            max-width: 420px;
+            width: 90%;
+            text-align: center;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3);
+        }
+
+        .modal-card img {
+            max-width: 100%;
+            height: auto;
+            margin: 1rem auto;
+            border-radius: 4px;
+        }
+
+        .modal-card input[type="text"] {
+            width: 60px;
+            font-size: 1.25rem;
+            text-align: center;
+            padding: 0.25rem;
+            margin-right: 0.5rem;
+        }
+
+        .modal-card button {
+            padding: 0.4rem 1rem;
+            font-size: 1rem;
+            cursor: pointer;
+        }
+    </style>
+</head>
+<body>
+    <div class="game-wrapper">
+        <header>
+            <h1>Banana Platformer</h1>
+        </header>
+
+        <!-- Heads-Up Display (HUD) showing player stats -->
+        <div class="hud" role="region" aria-label="Game stats">
+            <div id="hud-score">Score: 0</div>
+            <div id="hud-lives">Lives: ❤️❤️❤️</div>
+            <div id="hud-scrolls">Scrolls: 0 / 0</div>
+            <div id="hud-hints">Hints — Bronze: 0 Silver: 0 Gold: 0</div>
+        </div>
+
+        <!-- 2D Platformer Viewport (800x480) -->
+        <canvas id="game-canvas" width="800" height="480"></canvas>
+
+        <!-- Live game status messages (e.g., door unlocked, wrong answer) -->
+        <p id="game-message" role="status"></p>
+
+        <p class="controls-hint">
+            <strong>Controls:</strong> Arrow keys or <kbd>A</kbd>/<kbd>D</kbd> to move &bull; <kbd>Up</kbd>, <kbd>W</kbd>, or <kbd>Space</kbd> to jump.
+        </p>
+
+        <!-- Puzzle modal overlay: opens when player collects a scroll (tile 2) -->
+        <div id="puzzle-modal" class="modal-overlay" hidden aria-modal="true" role="dialog">
+            <div class="modal-card">
+                <h2>Ancient Scroll Puzzle</h2>
+                <p>Solve the riddle to unlock the scroll:</p>
+                <img id="modal-puzzle-img" alt="Puzzle question image">
+                <p id="modal-message" role="status"></p>
+                <form id="modal-answer-form">
+                    <label for="modal-guess">Bananas count (0–9):</label>
+                    <input id="modal-guess" type="text" maxlength="1" pattern="[0-9]" autocomplete="off" required>
+                    <button type="submit">Submit</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts loaded in dependency order -->
+    <script src="js/api.js"></script>
+    <script src="js/player.js"></script>
+    <script src="js/level.js"></script>
+    <script src="js/events.js"></script>
+    <script src="js/game.js"></script>
+    <script src="js/dev-reload.js"></script>
+</body>
+</html>
