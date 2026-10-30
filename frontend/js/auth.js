@@ -41,7 +41,7 @@ function handleLogin(event) {
     sendCredentials('/api/login.php', username, password)
         .then(function () {
             showMessage('Logging in...');
-            window.location.href = 'index.html';
+            window.location.href = 'arena.html';
         })
         .catch(function (error) {
             showMessage(error.message);

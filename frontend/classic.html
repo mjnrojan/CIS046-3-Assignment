@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Classic Ladder – Banana Puzzle Arena</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        :root {
+            --bg-dark: #1b1a18;
+            --bg-card: #272522;
+            --bg-trail: #201e1b;
+            --accent-green: #81b64c;
+            --accent-green-hover: #98cb5d;
+            --accent-gold: #f5a623;
+            --node-wood: #5a4430;
+            --node-active: #4a7c29;
+            --border-color: #3b3935;
+            --text-light: #ffffff;
+            --text-muted: #a3a19b;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .ladder-layout {
+            max-width: 960px;
+            margin: 0 auto;
+            padding: 1rem 1rem 3rem 1rem;
+        }
+
+        /* Top Header Bar */
+        .ladder-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 0.8rem 1.25rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .btn-back {
+            background: #181715;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 0.45rem 0.85rem;
+            border-radius: 6px;
+            text-decoration: none;
+            font-size: 0.9rem;
+            font-weight: 600;
+        }
+
+        .btn-back:hover {
+            color: #fff;
+            border-color: #666;
+        }
+
+        .points-pill {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #191815;
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.9rem;
+            border-radius: 20px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: var(--accent-gold);
+        }
+
+        /* Two-Column Grid: Trail on Left, Active Puzzle on Right */
+        .content-grid {
+            display: grid;
+            grid-template-columns: 280px 1fr;
+            gap: 1.5rem;
+            align-items: start;
+        }
+
+        @media (max-width: 720px) {
+            .content-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* Left Column: Visual Stepping Stone Trail */
+        .trail-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.25rem;
+            text-align: center;
+        }
+
+        .trail-card h2 {
+            font-size: 1.1rem;
+            margin: 0 0 1rem 0;
+            color: var(--text-muted);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stones-container {
+            display: flex;
+            flex-direction: column-reverse; /* Bottom to top progression */
+            gap: 0.75rem;
+            max-height: 480px;
+            overflow-y: auto;
+            padding-right: 0.5rem;
+        }
+
+        .stone-node {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 48px;
+            background: #33302b;
+            border: 2px solid #4a463f;
+            border-radius: 10px;
+            font-weight: 800;
+            font-size: 1.1rem;
+            color: var(--text-muted);
+            position: relative;
+            transition: all 0.2s;
+        }
+
+        .stone-node.completed {
+            background: #253818;
+            border-color: #3b5e23;
+            color: var(--accent-green);
+        }
+
+        .stone-node.active {
+            background: var(--accent-green);
+            border-color: #a3d160;
+            color: #ffffff;
+            box-shadow: 0 0 15px rgba(129, 182, 76, 0.4);
+            transform: scale(1.05);
+        }
+
+        /* Right Column: Puzzle Solving Arena */
+        .puzzle-arena {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            text-align: center;
+        }
+
+        .arena-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .node-tag {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: var(--text-light);
+        }
+
+        .reward-tag {
+            background: rgba(245, 166, 35, 0.15);
+            color: var(--accent-gold);
+            border: 1px solid rgba(245, 166, 35, 0.3);
+            padding: 0.35rem 0.75rem;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 700;
+        }
+
+        .puzzle-img-wrapper {
+            background: #ffffff;
+            border-radius: 8px;
+            padding: 0.75rem;
+            display: inline-block;
+            margin-bottom: 1.25rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            max-width: 100%;
+        }
+
+        .puzzle-img {
+            max-width: 100%;
+            height: auto;
+            display: block;
+            min-height: 180px;
+        }
+
+        .input-bar {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        .input-guess {
+            width: 70px;
+            height: 48px;
+            font-size: 1.5rem;
+            font-weight: 800;
+            text-align: center;
+            background: #181715;
+            color: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 8px;
+            outline: none;
+        }
+
+        .input-guess:focus {
+            border-color: var(--accent-green);
+        }
+
+        .btn-submit {
+            height: 48px;
+            padding: 0 1.75rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            background: var(--accent-green);
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+
+        .btn-submit:hover {
+            background: var(--accent-green-hover);
+        }
+
+        .status-msg {
+            min-height: 1.5rem;
+            font-size: 0.95rem;
+            font-weight: 600;
+        }
+
+        .status-msg.error {
+            color: #ff6b6b;
+        }
+
+        .status-msg.success {
+            color: var(--accent-green);
+        }
+    </style>
+</head>
+<body>
+    <div class="ladder-layout">
+        <!-- Top Bar -->
+        <header class="ladder-header">
+            <div class="header-left">
+                <a href="arena.html" class="btn-back">⬅ Back to Arena</a>
+                <span id="header-node-indicator" style="font-weight: 700;">Node #1</span>
+            </div>
+
+            <div class="points-pill">
+                <span>🔥</span>
+                <span id="header-ladder-points">0</span>
+                <span style="font-size: 0.8rem; font-weight: normal; color: var(--text-muted);">pts</span>
+            </div>
+        </header>
+
+        <!-- Main Layout -->
+        <div class="content-grid">
+            <!-- Left: Stepping Stone Trail -->
+            <aside class="trail-card">
+                <h2>Adventure Trail</h2>
+                <div class="stones-container" id="stones-container">
+                    <!-- Dynamic node stones rendered by JS -->
+                </div>
+            </aside>
+
+            <!-- Right: Puzzle Card -->
+            <main class="puzzle-arena">
+                <div class="arena-top-bar">
+                    <span class="node-tag" id="active-node-title">Active: Node #1</span>
+                    <span class="reward-tag" id="potential-reward-badge">⭐ Potential: +50 pts</span>
+                </div>
+
+                <div class="puzzle-img-wrapper">
+                    <img id="ladder-puzzle-img" class="puzzle-img" alt="Banana puzzle challenge">
+                </div>
+
+                <form id="ladder-form" class="input-bar" autocomplete="off">
+                    <input 
+                        type="text" 
+                        id="ladder-guess-input" 
+                        class="input-guess" 
+                        maxlength="1" 
+                        pattern="[0-9]" 
+                        placeholder="?" 
+                        required 
+                        autofocus
+                    >
+                    <button type="submit" id="btn-ladder-submit" class="btn-submit">Submit</button>
+                </form>
+
+                <p id="ladder-status-msg" class="status-msg" role="status"></p>
+            </main>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/api.js"></script>
+    <script src="js/dev-reload.js"></script>
+    <script src="js/classic.js"></script>
+</body>
+</html>
