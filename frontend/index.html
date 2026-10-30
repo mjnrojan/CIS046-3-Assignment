@@ -3,21 +3,135 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banana puzzle</title>
+    <title>Banana Platformer – Welcome</title>
     <link rel="stylesheet" href="style.css">
+    <style>
+        .landing-container {
+            max-width: 650px;
+            margin: 2.5rem auto;
+            padding: 2rem;
+            background: #fdfdfd;
+            border: 2px solid #2c3e50;
+            border-radius: 8px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            text-align: center;
+        }
+
+        .landing-title {
+            font-size: 2.2rem;
+            margin-bottom: 0.5rem;
+            color: #2c3e50;
+        }
+
+        .landing-subtitle {
+            font-size: 1.1rem;
+            color: #555555;
+            margin-bottom: 2rem;
+            line-height: 1.5;
+        }
+
+        .action-group {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin-bottom: 2.5rem;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 0.8rem 1.6rem;
+            font-size: 1.05rem;
+            font-weight: bold;
+            text-decoration: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s, transform 0.1s;
+        }
+
+        .btn-primary {
+            background: #27ae60;
+            color: #ffffff;
+            border: 2px solid #27ae60;
+        }
+
+        .btn-primary:hover {
+            background: #219150;
+        }
+
+        .btn-secondary {
+            background: #2c3e50;
+            color: #ffffff;
+            border: 2px solid #2c3e50;
+        }
+
+        .btn-secondary:hover {
+            background: #1a252f;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.25rem;
+            text-align: left;
+            margin-top: 1.5rem;
+            border-top: 1px solid #e0e0e0;
+            padding-top: 1.5rem;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-radius: 6px;
+            padding: 1rem;
+            border-left: 4px solid #3498db;
+        }
+
+        .feature-card h3 {
+            margin: 0 0 0.5rem 0;
+            font-size: 1rem;
+            color: #2c3e50;
+        }
+
+        .feature-card p {
+            margin: 0;
+            font-size: 0.9rem;
+            color: #666666;
+            line-height: 1.4;
+        }
+    </style>
 </head>
 <body>
     <main>
-        <h1>Banana puzzle</h1>
-        <img id="puzzle" alt="The puzzle image loads here">
-        <form id="answer-form">
-            <label for="guess">How many bananas? Enter a number from 0 to 9.</label>
-            <input id="guess" name="guess" type="number" min="0" max="9" required>
-            <button type="submit">Submit</button>
-        </form>
-        <p id="message" role="status"></p>
+        <div class="landing-container">
+            <h1 class="landing-title">🍌 Banana Platformer</h1>
+            <p class="landing-subtitle">
+                Explore 2D levels, collect mystery hint chests, and solve banana math riddles to unlock ancient doors!
+            </p>
+
+            <div class="action-group">
+                <a href="game.html?level=0" class="btn btn-primary" id="btn-play">▶ Start Game</a>
+                <a href="login.html" class="btn btn-secondary" id="btn-auth">👤 Login / Register</a>
+            </div>
+
+            <div class="features-grid">
+                <div class="feature-card">
+                    <h3>🎮 2D Platformer</h3>
+                    <p>Classic jump &amp; run gameplay with smooth physics and side-scrolling levels.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🧩 Banana Riddles</h3>
+                    <p>Touch golden scrolls to solve arithmetic puzzle images from the API.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>📦 Lucky Chests</h3>
+                    <p>Find Bronze, Silver, and Gold chests offering tiered hints when stuck.</p>
+                </div>
+                <div class="feature-card">
+                    <h3>🏆 Lives &amp; Scoring</h3>
+                    <p>Earn speed bonuses for quick answers, but guard your 3 lives carefully!</p>
+                </div>
+            </div>
+        </div>
     </main>
-    <script src="js/api.js"></script>
-    <script src="js/puzzle.js"></script>
 </body>
 </html>
