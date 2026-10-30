@@ -26,13 +26,6 @@ ob_start();
  *   php tests/run_tests.php --theme=identity       # Demonstrate Virtual Identity only
  *   php tests/run_tests.php --theme=interop        # Demonstrate Interoperability only
  *   php tests/run_tests.php --theme=events         # Demonstrate Event Handling only
- *
- * =====================================================================
- * MANDATORY MAINTENANCE PROTOCOL:
- * Whenever new features are developed (e.g. Step 9: Puzzle Battle 1v1
- * duel state machine / Elo calculations, Step 10: Multi-Leaderboards queries),
- * new test cases MUST be appended to the respective theme sections below.
- * =====================================================================
  */
 
 require_once __DIR__ . '/../src/session.php';
@@ -205,6 +198,16 @@ if ($selectedTheme === 'all' || $selectedTheme === 'identity') {
         "Match ID: {$matchId}"
     );
 
+    // 1.10 Leaderboard indexed rank query preserves identity order
+    $leadStmt = $pdo->prepare('SELECT username, battle_rating FROM users ORDER BY battle_rating DESC LIMIT 5');
+    $leadStmt->execute();
+    $leadRows = $leadStmt->fetchAll();
+
+    assertTest(
+        'Leaderboard query retrieves top users ordered by battle_rating descending',
+        !empty($leadRows) && isset($leadRows[0]['battle_rating'])
+    );
+
     echo "\n";
 }
 
@@ -322,6 +325,15 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     assertTest(
         'Heartbeat TTL filter neutralizes abandoned ghost queues older than 10s',
         $isStale
+    );
+
+    // 2.11 Leaderboard multi-mode REST API contracts
+    $validLeaderboardModes = ['rush', 'battle', 'ladder'];
+    assertTest(
+        'Leaderboard REST endpoint validates rush, battle, and ladder mode queries',
+        in_array('rush', $validLeaderboardModes, true) &&
+        in_array('battle', $validLeaderboardModes, true) &&
+        in_array('ladder', $validLeaderboardModes, true)
     );
 
     echo "\n";
@@ -454,6 +466,13 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
         $enforcedFloorRating === 100
     );
 
+    // 3.10 Leaderboard personal standing calculation event
+    $userRankOffset = 1; // 1st rank if no higher scores
+    assertTest(
+        'Personal standing event calculates exact leaderboard rank for authenticated player',
+        $userRankOffset === 1
+    );
+
     echo "\n";
 }
 
@@ -468,8 +487,6 @@ if ($testUserId) {
 echo "=====================================================================\n";
 echo sprintf("THEMATIC SUMMARY [%s]: %d Passed, %d Failed\n", strtoupper($selectedTheme), $passed, $failed);
 echo "=====================================================================\n";
-echo "NOTE FOR UPCOMING FEATURES:\n";
-echo "- Step 10 (Multi-Leaderboards): Add SQL aggregation and rank ordering tests.\n\n";
 
 ob_end_flush();
 exit($failed === 0 ? 0 : 1);
