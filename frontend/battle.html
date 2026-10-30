@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Puzzle Battle – Banana Puzzle Arena</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        body {
+            background-color: #161512;
+            color: #bababa;
+            margin: 0;
+            padding: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .battle-container {
+            width: 100%;
+            max-width: 860px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        /* Top navigation and match controls */
+        .battle-top-bar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: #262421;
+            border: 1px solid #36322d;
+            border-radius: 10px;
+            padding: 0.75rem 1.25rem;
+        }
+
+        .back-link {
+            color: #81b64c;
+            text-decoration: none;
+            font-weight: 700;
+            font-size: 0.95rem;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .battle-mode-title {
+            color: #ffffff;
+            font-weight: 800;
+            font-size: 1.15rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .battle-timer {
+            background: #1b1917;
+            border: 1px solid #45423e;
+            color: #ffffff;
+            padding: 0.4rem 0.9rem;
+            border-radius: 6px;
+            font-weight: 800;
+            font-size: 1.25rem;
+            font-family: monospace;
+            letter-spacing: 1px;
+        }
+
+        .battle-timer.urgent {
+            background: #962d2d;
+            color: #ffffff;
+            animation: pulseUrgent 0.9s infinite alternate;
+        }
+
+        @keyframes pulseUrgent {
+            from { transform: scale(1); }
+            to { transform: scale(1.06); }
+        }
+
+        /* Split-HUD Race Header */
+        .split-hud {
+            display: grid;
+            grid-template-columns: 1fr auto 1fr;
+            align-items: center;
+            gap: 1rem;
+            background: #262421;
+            border: 1px solid #36322d;
+            border-radius: 12px;
+            padding: 1.25rem;
+        }
+
+        .combatant-card {
+            display: flex;
+            flex-direction: column;
+            gap: 0.4rem;
+        }
+
+        .combatant-card.player {
+            text-align: left;
+        }
+
+        .combatant-card.opponent {
+            text-align: right;
+        }
+
+        .combatant-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .combatant-card.opponent .combatant-header {
+            justify-content: flex-end;
+        }
+
+        .combatant-name {
+            color: #ffffff;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .rating-badge {
+            background: #36322d;
+            color: #e5c07b;
+            padding: 0.15rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .combatant-score {
+            font-size: 2.2rem;
+            font-weight: 900;
+            color: #ffffff;
+            line-height: 1;
+        }
+
+        .player .combatant-score {
+            color: #81b64c;
+        }
+
+        .opponent .combatant-score {
+            color: #e06c75;
+        }
+
+        .strikes-container {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .combatant-card.opponent .strikes-container {
+            justify-content: flex-end;
+        }
+
+        .strike-box {
+            width: 24px;
+            height: 24px;
+            border: 1px solid #45423e;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.85rem;
+            background: #1b1917;
+            color: #555555;
+            font-weight: 800;
+        }
+
+        .strike-box.struck {
+            background: #962d2d;
+            color: #ffffff;
+            border-color: #e74c3c;
+        }
+
+        /* Race bar in the center of the HUD */
+        .hud-center {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 0.5rem;
+            min-width: 180px;
+        }
+
+        .vs-tag {
+            font-weight: 900;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            color: #666666;
+        }
+
+        .race-bar-track {
+            width: 100%;
+            height: 12px;
+            background: #1b1917;
+            border: 1px solid #36322d;
+            border-radius: 6px;
+            overflow: hidden;
+            display: flex;
+        }
+
+        .race-bar-player {
+            background: #81b64c;
+            width: 50%;
+            transition: width 0.3s ease;
+        }
+
+        .race-bar-opponent {
+            background: #e06c75;
+            width: 50%;
+            transition: width 0.3s ease;
+        }
+
+        /* Puzzle Arena Stage */
+        .battle-stage {
+            background: #262421;
+            border: 1px solid #36322d;
+            border-radius: 12px;
+            padding: 1.75rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.25rem;
+        }
+
+        .battle-puzzle-wrapper {
+            background: #1b1917;
+            border: 2px solid #36322d;
+            border-radius: 10px;
+            padding: 1rem;
+            max-width: 600px;
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 280px;
+            box-sizing: border-box;
+        }
+
+        .battle-puzzle-img {
+            max-width: 100%;
+            max-height: 380px;
+            border-radius: 6px;
+            display: block;
+        }
+
+        .battle-form {
+            display: flex;
+            gap: 0.75rem;
+            width: 100%;
+            max-width: 380px;
+        }
+
+        .battle-input {
+            flex: 1;
+            padding: 0.85rem;
+            font-size: 1.4rem;
+            text-align: center;
+            font-weight: 800;
+            background: #1b1917;
+            border: 2px solid #45423e;
+            border-radius: 8px;
+            color: #ffffff;
+            letter-spacing: 2px;
+            outline: none;
+        }
+
+        .battle-input:focus {
+            border-color: #81b64c;
+            box-shadow: 0 0 0 3px rgba(129, 182, 76, 0.25);
+        }
+
+        .battle-submit-btn {
+            padding: 0.85rem 1.6rem;
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: #81b64c;
+            color: #ffffff;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.15s ease, transform 0.08s ease;
+        }
+
+        .battle-submit-btn:hover {
+            background: #95c95d;
+        }
+
+        .battle-submit-btn:active {
+            transform: scale(0.97);
+        }
+
+        .battle-feedback {
+            min-height: 1.5rem;
+            font-size: 1.05rem;
+            font-weight: 700;
+            text-align: center;
+        }
+
+        .battle-feedback.correct {
+            color: #81b64c;
+        }
+
+        .battle-feedback.wrong {
+            color: #e06c75;
+        }
+
+        /* Post-match summary modal */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.82);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            padding: 1.5rem;
+        }
+
+        .modal-card {
+            background: #262421;
+            border: 2px solid #36322d;
+            border-radius: 14px;
+            padding: 2.5rem 2rem;
+            max-width: 460px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+        }
+
+        .modal-title {
+            font-size: 2.2rem;
+            font-weight: 900;
+            margin: 0 0 0.5rem 0;
+        }
+
+        .modal-title.win {
+            color: #81b64c;
+        }
+
+        .modal-title.loss {
+            color: #e06c75;
+        }
+
+        .modal-title.draw {
+            color: #e5c07b;
+        }
+
+        .modal-score-box {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 1.5rem;
+            margin: 1.5rem 0;
+            font-size: 2.4rem;
+            font-weight: 900;
+        }
+
+        .modal-rating-badge {
+            display: inline-block;
+            background: #1b1917;
+            border: 1px solid #45423e;
+            padding: 0.6rem 1.25rem;
+            border-radius: 8px;
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #ffffff;
+            margin-bottom: 2rem;
+        }
+
+        .modal-actions {
+            display: flex;
+            gap: 1rem;
+            justify-content: center;
+        }
+
+        .btn-modal {
+            padding: 0.85rem 1.4rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 700;
+            text-decoration: none;
+            cursor: pointer;
+            border: none;
+        }
+
+        .btn-modal.primary {
+            background: #81b64c;
+            color: #ffffff;
+        }
+
+        .btn-modal.primary:hover {
+            background: #95c95d;
+        }
+
+        .btn-modal.secondary {
+            background: #36322d;
+            color: #ffffff;
+        }
+
+        .btn-modal.secondary:hover {
+            background: #45423e;
+        }
+    </style>
+</head>
+<body>
+    <div class="battle-container">
+        <!-- Top bar: navigation and timer -->
+        <header class="battle-top-bar">
+            <a href="arena.html" class="back-link">← Return to Arena</a>
+            <div class="battle-mode-title">⚔️ 1v1 Puzzle Battle</div>
+            <div id="battle-timer" class="battle-timer">03:00</div>
+        </header>
+
+        <!-- Split-HUD Race Header -->
+        <section class="split-hud">
+            <!-- Player 1 Card -->
+            <div class="combatant-card player">
+                <div class="combatant-header">
+                    <span id="player-username" class="combatant-name">Player</span>
+                    <span id="player-rating-badge" class="rating-badge">500</span>
+                </div>
+                <div id="player-score" class="combatant-score">0</div>
+                <div class="strikes-container">
+                    <div id="p-strike-1" class="strike-box">1</div>
+                    <div id="p-strike-2" class="strike-box">2</div>
+                    <div id="p-strike-3" class="strike-box">3</div>
+                </div>
+            </div>
+
+            <!-- Central Race Bar & VS Badge -->
+            <div class="hud-center">
+                <span class="vs-tag">VS</span>
+                <div class="race-bar-track">
+                    <div id="race-bar-player" class="race-bar-player"></div>
+                    <div id="race-bar-opponent" class="race-bar-opponent"></div>
+                </div>
+            </div>
+
+            <!-- Opponent Card -->
+            <div class="combatant-card opponent">
+                <div class="combatant-header">
+                    <span id="opponent-rating-badge" class="rating-badge">520</span>
+                    <span id="opponent-name" class="combatant-name">Challenger Bot</span>
+                </div>
+                <div id="opponent-score" class="combatant-score">0</div>
+                <div class="strikes-container">
+                    <div id="o-strike-1" class="strike-box">1</div>
+                    <div id="o-strike-2" class="strike-box">2</div>
+                    <div id="o-strike-3" class="strike-box">3</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Puzzle Arena Stage -->
+        <main class="battle-stage">
+            <div class="battle-puzzle-wrapper">
+                <img id="battle-puzzle-img" class="battle-puzzle-img" src="" alt="Banana Riddle Puzzle" />
+            </div>
+
+            <form id="battle-form" class="battle-form">
+                <input
+                    id="battle-input"
+                    class="battle-input"
+                    type="text"
+                    inputmode="numeric"
+                    pattern="[0-9]"
+                    maxlength="1"
+                    placeholder="0-9"
+                    autocomplete="off"
+                    required
+                />
+                <button id="battle-submit-btn" class="battle-submit-btn" type="submit">Submit</button>
+            </form>
+
+            <div id="battle-feedback" class="battle-feedback" role="status"></div>
+        </main>
+    </div>
+
+    <!-- Match Summary Modal -->
+    <div id="battle-modal" class="modal-overlay" hidden>
+        <div class="modal-card">
+            <h2 id="modal-title" class="modal-title win">🏆 VICTORY!</h2>
+            <p id="modal-subtitle">Match concluded.</p>
+
+            <div class="modal-score-box">
+                <span id="modal-player-score" style="color: #81b64c;">0</span>
+                <span style="color: #666666;">-</span>
+                <span id="modal-opponent-score" style="color: #e06c75;">0</span>
+            </div>
+
+            <div id="modal-rating-badge" class="modal-rating-badge">
+                Rating: 500 → 525 (+25)
+            </div>
+
+            <div class="modal-actions">
+                <button id="btn-play-again" class="btn-modal primary" onclick="window.location.reload();">Battle Again</button>
+                <a href="arena.html" class="btn-modal secondary">Arena Hub</a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/api.js"></script>
+    <script src="js/battle.js"></script>
+    <script src="js/dev-reload.js"></script>
+</body>
+</html>

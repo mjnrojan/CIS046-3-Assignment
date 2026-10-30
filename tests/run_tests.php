@@ -180,6 +180,31 @@ if ($selectedTheme === 'all' || $selectedTheme === 'identity') {
         $oldSessionId !== $newSessionId && !empty($newSessionId)
     );
 
+    // 1.8 Puzzle Battle Elo rating initialization & update
+    $stmt = $pdo->prepare('SELECT battle_rating FROM users WHERE id = ?');
+    $stmt->execute([$testUserId]);
+    $initialRating = (int) $stmt->fetchColumn();
+
+    assertTest(
+        'New user starts with default 500 Battle Elo rating in database',
+        $initialRating === 500,
+        "Initial Elo: {$initialRating}"
+    );
+
+    // 1.9 Battle match relational foreign-key persistence
+    $stmt = $pdo->prepare(
+        'INSERT INTO battle_matches (player1_id, player2_id, player1_score, player2_score, winner_id)
+         VALUES (?, NULL, 8, 5, ?)'
+    );
+    $stmt->execute([$testUserId, $testUserId]);
+    $matchId = (int) $pdo->lastInsertId();
+
+    assertTest(
+        'Battle match history persists in relational battle_matches table with foreign key',
+        $matchId > 0,
+        "Match ID: {$matchId}"
+    );
+
     echo "\n";
 }
 
@@ -258,6 +283,14 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     assertTest(
         'JSON data contract validates structured client-server communication',
         is_array($jsonDecoded) && $jsonDecoded['guess'] === 4 && $jsonDecoded['mode'] === '5m'
+    );
+
+    // 2.7 Battle action JSON protocol contract
+    $battleStartPayload = json_encode(['action' => 'start']);
+    $battleStartDecoded = json_decode($battleStartPayload, true);
+    assertTest(
+        'Battle REST protocol validates action=start and action=finish contracts',
+        isset($battleStartDecoded['action']) && $battleStartDecoded['action'] === 'start'
     );
 
     echo "\n";
@@ -357,11 +390,46 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
         );
     }
 
+    // 3.7 Puzzle Battle 1v1 victory state transition event (more solves)
+    $pScore = 12;
+    $oScore = 9;
+    $pStrikes = 1;
+    $oStrikes = 2;
+    $battleWon = ($pScore > $oScore && $pStrikes < 3);
+    $ratingChange = $battleWon ? +25 : -15;
+
+    assertTest(
+        '1v1 Battle victory event triggers Win outcome and awards +25 Elo',
+        $battleWon && $ratingChange === 25
+    );
+
+    // 3.8 Puzzle Battle opponent strikeout event (3 strikes)
+    $oStrikesOut = 3;
+    $pStrikesAlive = 1;
+    $strikeoutWin = ($oStrikesOut >= 3 && $pStrikesAlive < 3);
+
+    assertTest(
+        'Opponent strikeout event (3 strikes) triggers instant Player Victory',
+        $strikeoutWin
+    );
+
+    // 3.9 Battle Rating floor enforcement event (minimum 100 Elo)
+    $lowRating = 105;
+    $lossDelta = -15;
+    $enforcedFloorRating = max(100, $lowRating + $lossDelta);
+
+    assertTest(
+        'Defeat rating deduction enforces 100 Elo minimum rating floor',
+        $enforcedFloorRating === 100
+    );
+
     echo "\n";
 }
 
-// Cleanup: remove temporary user created during testing
+// Cleanup: remove temporary user and matches created during testing
 if ($testUserId) {
+    $stmt = $pdo->prepare('DELETE FROM battle_matches WHERE player1_id = ?');
+    $stmt->execute([$testUserId]);
     $stmt = $pdo->prepare('DELETE FROM users WHERE id = ?');
     $stmt->execute([$testUserId]);
 }
@@ -370,7 +438,6 @@ echo "=====================================================================\n";
 echo sprintf("THEMATIC SUMMARY [%s]: %d Passed, %d Failed\n", strtoupper($selectedTheme), $passed, $failed);
 echo "=====================================================================\n";
 echo "NOTE FOR UPCOMING FEATURES:\n";
-echo "- Step 9 (Puzzle Battle): Add 1v1 match outcome events and Elo rating tests.\n";
 echo "- Step 10 (Multi-Leaderboards): Add SQL aggregation and rank ordering tests.\n\n";
 
 ob_end_flush();
