@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Puzzle Arena – Chess.com Style Hub</title>
+    <link rel="stylesheet" href="style.css">
+    <style>
+        /* Chess.com Dark Arena Theme */
+        :root {
+            --bg-dark: #1e1e1e;
+            --bg-card: #262522;
+            --bg-card-hover: #31302c;
+            --accent-green: #81b64c;
+            --accent-green-hover: #a3d160;
+            --accent-orange: #f28b24;
+            --accent-blue: #3d85c6;
+            --text-light: #ffffff;
+            --text-muted: #bababa;
+            --border-color: #3d3b36;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        .arena-container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 1.5rem 1rem 3rem 1rem;
+        }
+
+        /* Top Profile Banner */
+        .profile-banner {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.25rem 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .user-identity {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .avatar-icon {
+            width: 48px;
+            height: 48px;
+            background: #363430;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.8rem;
+        }
+
+        .user-name {
+            font-size: 1.3rem;
+            font-weight: 700;
+            margin: 0;
+        }
+
+        .ratings-row {
+            display: flex;
+            gap: 1.25rem;
+            flex-wrap: wrap;
+        }
+
+        .stat-badge {
+            text-align: center;
+            background: #181715;
+            padding: 0.5rem 0.9rem;
+            border-radius: 6px;
+            border: 1px solid var(--border-color);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            color: var(--text-muted);
+            letter-spacing: 0.5px;
+            margin-bottom: 0.2rem;
+        }
+
+        .stat-value {
+            font-size: 1.2rem;
+            font-weight: 800;
+            color: var(--accent-green);
+        }
+
+        .btn-logout {
+            background: transparent;
+            color: var(--text-muted);
+            border: 1px solid var(--border-color);
+            padding: 0.4rem 0.8rem;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85rem;
+        }
+
+        .btn-logout:hover {
+            color: #ff5252;
+            border-color: #ff5252;
+        }
+
+        /* Tab Navigation (Play vs Leaderboards) */
+        .hub-tabs {
+            display: flex;
+            gap: 1rem;
+            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 2rem;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: var(--text-muted);
+            font-size: 1.15rem;
+            font-weight: 700;
+            padding: 0.75rem 1.25rem;
+            cursor: pointer;
+            position: relative;
+            bottom: -2px;
+        }
+
+        .tab-btn.active {
+            color: var(--text-light);
+            border-bottom: 3px solid var(--accent-green);
+        }
+
+        /* Modes Grid */
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .mode-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: transform 0.15s, border-color 0.15s, background 0.15s;
+        }
+
+        .mode-card:hover {
+            transform: translateY(-3px);
+            background: var(--bg-card-hover);
+            border-color: #555;
+        }
+
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+        }
+
+        .mode-icon {
+            font-size: 2rem;
+        }
+
+        .mode-title {
+            margin: 0;
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        .mode-desc {
+            color: var(--text-muted);
+            font-size: 0.92rem;
+            line-height: 1.45;
+            margin-bottom: 1.25rem;
+        }
+
+        .mode-meta {
+            background: #191816;
+            border-radius: 6px;
+            padding: 0.6rem 0.8rem;
+            font-size: 0.85rem;
+            color: #ddd;
+            margin-bottom: 1.25rem;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .btn-launch {
+            display: block;
+            width: 100%;
+            text-align: center;
+            box-sizing: border-box;
+            background: var(--accent-green);
+            color: #ffffff;
+            font-size: 1rem;
+            font-weight: 700;
+            padding: 0.8rem;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background 0.15s;
+        }
+
+        .btn-launch:hover {
+            background: var(--accent-green-hover);
+        }
+
+        .btn-rush {
+            background: var(--accent-orange);
+        }
+        .btn-rush:hover {
+            background: #ff9d3b;
+        }
+
+        .btn-battle {
+            background: var(--accent-blue);
+        }
+        .btn-battle:hover {
+            background: #5097dc;
+        }
+
+        /* Duration Selector Modal for Puzzle Rush */
+        .rush-modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .rush-modal-overlay[hidden] {
+            display: none !important;
+        }
+
+        .rush-modal {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.75rem;
+            max-width: 400px;
+            width: 90%;
+            text-align: center;
+        }
+
+        .rush-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0.75rem;
+            margin: 1.5rem 0;
+        }
+
+        .btn-option {
+            background: #181715;
+            color: #fff;
+            border: 1px solid var(--border-color);
+            padding: 0.75rem;
+            border-radius: 8px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        .btn-option:hover {
+            border-color: var(--accent-orange);
+            color: var(--accent-orange);
+        }
+
+        .btn-close {
+            background: transparent;
+            color: var(--text-muted);
+            border: none;
+            cursor: pointer;
+            margin-top: 0.5rem;
+        }
+    </style>
+</head>
+<body>
+    <div class="arena-container">
+        <!-- Top Profile Banner with Chess.com Stats -->
+        <header class="profile-banner">
+            <div class="user-identity">
+                <div class="avatar-icon">♟️</div>
+                <div>
+                    <h1 class="user-name" id="profile-username">Loading...</h1>
+                    <button id="btn-logout" class="btn-logout">Logout</button>
+                </div>
+            </div>
+
+            <div class="ratings-row">
+                <div class="stat-badge">
+                    <div class="stat-label">⚡ Rush Best</div>
+                    <div class="stat-value" id="stat-rush">0</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="stat-label">⚔️ Battle Rating</div>
+                    <div class="stat-value" id="stat-battle">500</div>
+                </div>
+                <div class="stat-badge">
+                    <div class="stat-label">🪜 Ladder Pts</div>
+                    <div class="stat-value" id="stat-ladder">0</div>
+                </div>
+            </div>
+        </header>
+
+        <!-- Navigation Tabs -->
+        <nav class="hub-tabs" role="tablist">
+            <button class="tab-btn active" id="tab-play" role="tab" aria-selected="true">Play</button>
+            <button class="tab-btn" id="tab-leaderboard" role="tab" aria-selected="false">Leaderboards</button>
+        </nav>
+
+        <!-- Main Mode Selection View -->
+        <main id="view-play">
+            <div class="modes-grid">
+                <!-- Mode 1: Classic Ladder (Casual / Daily) -->
+                <article class="mode-card">
+                    <div>
+                        <div class="mode-header">
+                            <span class="mode-icon">🪜</span>
+                            <h2 class="mode-title">Classic Ladder</h2>
+                        </div>
+                        <p class="mode-desc">
+                            Casual puzzle journey along an adventure trail. Solve each node at your own pace. First try earns 50 pts; mistakes chip away from that total.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="mode-meta">
+                            <span>Current Level</span>
+                            <strong id="card-ladder-node">Node #1</strong>
+                        </div>
+                        <a href="classic.html" class="btn-launch" id="btn-start-ladder">Play Ladder</a>
+                    </div>
+                </article>
+
+                <!-- Mode 2: Puzzle Rush (1m, 5m, 10m, Survival) -->
+                <article class="mode-card">
+                    <div>
+                        <div class="mode-header">
+                            <span class="mode-icon">⚡</span>
+                            <h2 class="mode-title">Puzzle Rush</h2>
+                        </div>
+                        <p class="mode-desc">
+                            High-speed math puzzle sprint! Solve as many puzzles as possible before time expires or before you receive 3 strikes.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="mode-meta">
+                            <span>Personal High Score</span>
+                            <strong id="card-rush-score">0 Solves</strong>
+                        </div>
+                        <button class="btn-launch btn-rush" id="btn-open-rush-modal">Select Rush Mode</button>
+                    </div>
+                </article>
+
+                <!-- Mode 3: Puzzle Battle (1v1 Real-Time Duel) -->
+                <article class="mode-card">
+                    <div>
+                        <div class="mode-header">
+                            <span class="mode-icon">⚔️</span>
+                            <h2 class="mode-title">Puzzle Battle</h2>
+                        </div>
+                        <p class="mode-desc">
+                            Real-time 1v1 head-to-head duel! 3 minutes, 3 strikes. Watch your opponent's live progress bar and battle for Elo rating.
+                        </p>
+                    </div>
+                    <div>
+                        <div class="mode-meta">
+                            <span>Current Rank</span>
+                            <strong id="card-battle-rating">486 Elo</strong>
+                        </div>
+                        <a href="battle.html" class="btn-launch btn-battle" id="btn-start-battle">Enter Battle</a>
+                    </div>
+                </article>
+            </div>
+        </main>
+
+        <!-- Puzzle Rush Duration Selector Modal -->
+        <div id="rush-modal" class="rush-modal-overlay" hidden role="dialog" aria-modal="true">
+            <div class="rush-modal">
+                <h2>⚡ Choose Rush Mode</h2>
+                <p style="color: var(--text-muted); font-size: 0.9rem;">
+                    3 strikes and you are out. How many puzzles can you solve?
+                </p>
+                <div class="rush-options">
+                    <button class="btn-option" data-duration="60">⏱️ 1 Minute</button>
+                    <button class="btn-option" data-duration="300">⏱️ 5 Minutes</button>
+                    <button class="btn-option" data-duration="600">⏱️ 10 Minutes</button>
+                    <button class="btn-option" data-duration="0">💀 Survival (1 Life)</button>
+                </div>
+                <button class="btn-close" id="btn-close-rush">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="js/dev-reload.js"></script>
+    <script src="js/arena.js"></script>
+</body>
+</html>
