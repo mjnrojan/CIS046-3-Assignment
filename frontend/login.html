@@ -3,35 +3,36 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login – Banana Game</title>
+    <title>Login – Banana Puzzle Arena</title>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
     <main>
-        <h1>Banana Game</h1>
+        <h1>🍌 Puzzle Arena</h1>
+        <p class="auth-subtitle">Competitive Banana Puzzles & Ratings</p>
 
         <!-- Login form shown by default -->
         <form id="login-form">
-            <h2>Login</h2>
+            <h2>Sign In</h2>
             <label for="login-username">Username</label>
-            <input id="login-username" type="text" minlength="3" maxlength="50" required>
+            <input id="login-username" type="text" minlength="3" maxlength="50" placeholder="Enter your username" required autocomplete="username">
 
             <label for="login-password">Password</label>
-            <input id="login-password" type="password" minlength="6" required>
+            <input id="login-password" type="password" minlength="6" placeholder="Enter your password" required autocomplete="current-password">
 
-            <button type="submit">Login</button>
+            <button type="submit">Sign In to Arena</button>
         </form>
 
-        <!-- Register form hidden until the user clicks the toggle -->
+        <!-- Register form hidden until user clicks toggle -->
         <form id="register-form" hidden>
-            <h2>Register</h2>
+            <h2>Create Account</h2>
             <label for="reg-username">Username</label>
-            <input id="reg-username" type="text" minlength="3" maxlength="50" required>
+            <input id="reg-username" type="text" minlength="3" maxlength="50" placeholder="Choose a username (3-50 chars)" required autocomplete="username">
 
             <label for="reg-password">Password</label>
-            <input id="reg-password" type="password" minlength="6" required>
+            <input id="reg-password" type="password" minlength="6" placeholder="Choose a password (min 6 chars)" required autocomplete="new-password">
 
-            <button type="submit">Register</button>
+            <button type="submit">Register Account</button>
         </form>
 
         <p id="message" role="status"></p>
@@ -40,6 +41,8 @@
             No account? <a href="#" id="toggle-link">Register here</a>
         </p>
     </main>
+
     <script src="js/auth.js"></script>
+    <script src="js/dev-reload.js"></script>
 </body>
 </html>
