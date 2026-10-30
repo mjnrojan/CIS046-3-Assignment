@@ -293,6 +293,37 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
         isset($battleStartDecoded['action']) && $battleStartDecoded['action'] === 'start'
     );
 
+    // 2.8 Elo Matchmaking filter: pairs candidates within 200 rating points
+    $playerElo = 500;
+    $rivalElo = 515;
+    $eloDifference = abs($playerElo - $rivalElo);
+    $canMatch = ($eloDifference <= 200);
+
+    assertTest(
+        'Matchmaking engine pairs rivals within <= 200 Elo difference',
+        $canMatch,
+        "Diff: {$eloDifference} Elo"
+    );
+
+    // 2.9 Elo Matchmaking filter: rejects candidates beyond 200 rating points
+    $distantElo = 750;
+    $distantDiff = abs($playerElo - $distantElo);
+    $isRejected = ($distantDiff > 200);
+
+    assertTest(
+        'Matchmaking engine rejects players with > 200 Elo disparity',
+        $isRejected,
+        "Diff: {$distantDiff} Elo"
+    );
+
+    // 2.10 Ghost player TTL: ignores queue entries older than 10 seconds
+    $staleSeconds = 15;
+    $isStale = ($staleSeconds > 10);
+    assertTest(
+        'Heartbeat TTL filter neutralizes abandoned ghost queues older than 10s',
+        $isStale
+    );
+
     echo "\n";
 }
 

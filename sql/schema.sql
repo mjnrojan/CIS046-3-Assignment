@@ -3,6 +3,8 @@
 -- Run once in MySQL / phpMyAdmin, or execute: php sql/migrate.php
 
 SET FOREIGN_KEY_CHECKS = 0;
+DROP TABLE IF EXISTS battle_rooms;
+DROP TABLE IF EXISTS matchmaking_queue;
 DROP TABLE IF EXISTS battle_matches;
 DROP TABLE IF EXISTS scores;
 DROP TABLE IF EXISTS progress;
@@ -33,7 +35,7 @@ CREATE TABLE scores (
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
--- Battle matches table: records real-time 1v1 duels.
+-- Battle matches table: records historical real-time 1v1 duels.
 CREATE TABLE battle_matches (
     id            INT AUTO_INCREMENT PRIMARY KEY,
     player1_id    INT NOT NULL,
@@ -43,6 +45,35 @@ CREATE TABLE battle_matches (
     winner_id     INT NULL,
     played_at     DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Matchmaking queue table: tracks players currently searching for a live duel.
+CREATE TABLE matchmaking_queue (
+    user_id     INT         PRIMARY KEY,
+    rating      INT         NOT NULL,
+    status      VARCHAR(20) NOT NULL DEFAULT 'searching',
+    room_id     VARCHAR(64) NULL,
+    joined_at   DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at  DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    INDEX idx_queue_lookup (status, updated_at, rating),
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+) ENGINE=InnoDB;
+
+-- Battle rooms table: synchronizes active live duels between two connected browsers.
+CREATE TABLE battle_rooms (
+    room_id         VARCHAR(64) PRIMARY KEY,
+    player1_id      INT         NOT NULL,
+    player2_id      INT         NOT NULL,
+    player1_score   INT         NOT NULL DEFAULT 0,
+    player2_score   INT         NOT NULL DEFAULT 0,
+    player1_strikes INT         NOT NULL DEFAULT 0,
+    player2_strikes INT         NOT NULL DEFAULT 0,
+    status          VARCHAR(20) NOT NULL DEFAULT 'active',
+    winner_id       INT         NULL,
+    started_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    updated_at      DATETIME    NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (player1_id) REFERENCES users(id) ON DELETE CASCADE,
+    FOREIGN KEY (player2_id) REFERENCES users(id) ON DELETE CASCADE
 ) ENGINE=InnoDB;
 
 -- Progress table: tracks classic ladder milestones.

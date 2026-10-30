@@ -307,14 +307,14 @@
             color: #e06c75;
         }
 
-        /* Post-match summary modal */
+        /* Modal Overlays (Queue Search & Match Summary) */
         .modal-overlay {
             position: fixed;
             top: 0;
             left: 0;
             right: 0;
             bottom: 0;
-            background: rgba(0, 0, 0, 0.82);
+            background: rgba(0, 0, 0, 0.85);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -327,29 +327,55 @@
             border: 2px solid #36322d;
             border-radius: 14px;
             padding: 2.5rem 2rem;
-            max-width: 460px;
+            max-width: 480px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.6);
+            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
+        }
+
+        /* Radar Pulse Animation for Matchmaking */
+        .radar-box {
+            width: 72px;
+            height: 72px;
+            margin: 0 auto 1.5rem auto;
+            border-radius: 50%;
+            background: rgba(129, 182, 76, 0.15);
+            border: 2px solid #81b64c;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 2.2rem;
+            animation: radarPulse 1.6s infinite ease-out;
+        }
+
+        @keyframes radarPulse {
+            0% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(129, 182, 76, 0.6); }
+            70% { transform: scale(1.08); box-shadow: 0 0 0 22px rgba(129, 182, 76, 0); }
+            100% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(129, 182, 76, 0); }
+        }
+
+        .search-timer-badge {
+            display: inline-block;
+            background: #1b1917;
+            border: 1px solid #45423e;
+            padding: 0.4rem 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #81b64c;
+            margin: 1rem 0;
         }
 
         .modal-title {
-            font-size: 2.2rem;
+            font-size: 2.1rem;
             font-weight: 900;
             margin: 0 0 0.5rem 0;
         }
 
-        .modal-title.win {
-            color: #81b64c;
-        }
-
-        .modal-title.loss {
-            color: #e06c75;
-        }
-
-        .modal-title.draw {
-            color: #e5c07b;
-        }
+        .modal-title.win { color: #81b64c; }
+        .modal-title.loss { color: #e06c75; }
+        .modal-title.draw { color: #e5c07b; }
 
         .modal-score-box {
             display: flex;
@@ -377,6 +403,7 @@
             display: flex;
             gap: 1rem;
             justify-content: center;
+            flex-wrap: wrap;
         }
 
         .btn-modal {
@@ -387,6 +414,7 @@
             text-decoration: none;
             cursor: pointer;
             border: none;
+            transition: background 0.15s;
         }
 
         .btn-modal.primary {
@@ -405,6 +433,15 @@
 
         .btn-modal.secondary:hover {
             background: #45423e;
+        }
+
+        .btn-modal.bot {
+            background: #d97706;
+            color: #ffffff;
+        }
+
+        .btn-modal.bot:hover {
+            background: #f59e0b;
         }
     </style>
 </head>
@@ -480,6 +517,25 @@
 
             <div id="battle-feedback" class="battle-feedback" role="status"></div>
         </main>
+    </div>
+
+    <!-- Matchmaking Modal (Chess.com style queue finder) -->
+    <div id="matchmaking-modal" class="modal-overlay">
+        <div class="modal-card">
+            <div class="radar-box">🍌</div>
+            <h2 id="queue-title" class="modal-title" style="color: #ffffff;">Finding Opponent...</h2>
+            <p id="queue-subtitle" style="color: #bababa; margin: 0.5rem 0;">
+                Looking for players near your Elo (±200 rating range).
+            </p>
+            <div id="queue-timer" class="search-timer-badge">00:00 / 01:00</div>
+            <p id="queue-status" style="color: #888888; font-size: 0.9rem; min-height: 1.4rem;">
+                Queue active... Open 2nd browser with <strong>rival_player</strong> to pair!
+            </p>
+            <div class="modal-actions">
+                <button id="btn-force-bot" class="btn-modal bot" type="button">Challenge Bot</button>
+                <button id="btn-cancel-queue" class="btn-modal secondary" type="button">Cancel</button>
+            </div>
+        </div>
     </div>
 
     <!-- Match Summary Modal -->
