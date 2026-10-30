@@ -95,7 +95,7 @@ function replenishPuzzleCache(int $batchCount = REFILL_BATCH_SIZE): void
  * After popping, it triggers an incremental refill in the background
  * to build toward the 50-puzzle reserve without lag.
  */
-function popNextPuzzle(): ?array
+function popNextPuzzle(bool $autoReplenish = false): ?array
 {
     initPuzzleCache();
 
@@ -108,11 +108,13 @@ function popNextPuzzle(): ?array
         $_SESSION['puzzle_cache'][] = $immediate;
     }
 
-    // FIFO: remove and return the oldest puzzle
+    // FIFO: remove and return the oldest puzzle in memory (< 1ms)
     $puzzle = array_shift($_SESSION['puzzle_cache']);
 
-    // Incrementally top up the cache for upcoming requests
-    replenishPuzzleCache(REFILL_BATCH_SIZE);
+    // Only replenish if explicitly requested and cache is low
+    if ($autoReplenish && count($_SESSION['puzzle_cache']) < 5) {
+        replenishPuzzleCache(REFILL_BATCH_SIZE);
+    }
 
     return $puzzle;
 }

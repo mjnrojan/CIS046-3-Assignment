@@ -70,10 +70,10 @@ function loadLadderState() {
             if (rewardBadge) rewardBadge.textContent = '⭐ Potential: +' + data.potential_points + ' pts';
 
             renderSteppingStones(currentLadderNode);
-            loadNextLadderPuzzle();
         })
         .catch(function (error) {
             console.error('Ladder state error:', error);
+            renderSteppingStones(1);
         });
 }
 
@@ -82,7 +82,11 @@ function loadLadderState() {
  */
 function loadNextLadderPuzzle() {
     var img = document.getElementById('ladder-puzzle-img');
+    var loader = document.getElementById('ladder-puzzle-loader');
     var statusMsg = document.getElementById('ladder-status-msg');
+
+    if (loader) loader.style.display = 'block';
+    if (img) img.style.display = 'none';
 
     if (statusMsg) {
         statusMsg.textContent = 'Loading node challenge...';
@@ -91,7 +95,12 @@ function loadNextLadderPuzzle() {
 
     getPuzzle()
         .then(function (url) {
+            img.onload = function () {
+                if (loader) loader.style.display = 'none';
+                img.style.display = 'block';
+            };
             img.src = url;
+
             if (statusMsg) statusMsg.textContent = '';
             var input = document.getElementById('ladder-guess-input');
             if (input) {
@@ -100,6 +109,7 @@ function loadNextLadderPuzzle() {
             }
         })
         .catch(function (error) {
+            if (loader) loader.style.display = 'none';
             if (statusMsg) {
                 statusMsg.textContent = error.message;
                 statusMsg.className = 'status-msg error';
@@ -189,6 +199,8 @@ function setupLadderEvents() {
 
 // Start ladder mode on window load
 window.addEventListener('load', function () {
+    renderSteppingStones(1);
     loadLadderState();
+    loadNextLadderPuzzle();
     setupLadderEvents();
 });
