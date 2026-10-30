@@ -289,18 +289,30 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $winnerId = null;
         $ratingDelta = 0;
 
+        // Competitive Match Resolution:
+        // 1. If player struck out (3 strikes) and opponent didn't: definite loss
         if ($playerStrikes >= 3 && $opponentStrikes < 3) {
             $outcome = 'loss';
-        } elseif ($opponentStrikes >= 3 && $playerStrikes < 3) {
+        }
+        // 2. If player has more solved points: WIN
+        elseif ($playerScore > $opponentScore) {
             $outcome = 'win';
             $winnerId = $userId;
-        } elseif ($playerScore > $opponentScore) {
-            $outcome = 'win';
-            $winnerId = $userId;
-        } elseif ($playerScore < $opponentScore) {
+        }
+        // 3. If player has fewer solved points: LOSS (can never win with fewer points)
+        elseif ($playerScore < $opponentScore) {
             $outcome = 'loss';
-        } else {
-            $outcome = 'draw';
+        }
+        // 4. If tied score:
+        else {
+            if ($playerStrikes < $opponentStrikes) {
+                $outcome = 'win';
+                $winnerId = $userId;
+            } elseif ($playerStrikes > $opponentStrikes) {
+                $outcome = 'loss';
+            } else {
+                $outcome = 'draw';
+            }
         }
 
         if ($outcome === 'win') {

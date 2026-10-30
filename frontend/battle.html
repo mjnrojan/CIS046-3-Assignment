@@ -10,7 +10,7 @@
             background-color: #161512;
             color: #bababa;
             margin: 0;
-            padding: 1rem;
+            padding: 1.5rem 1rem;
             display: flex;
             flex-direction: column;
             align-items: center;
@@ -20,7 +20,7 @@
 
         .battle-container {
             width: 100%;
-            max-width: 860px;
+            max-width: 980px;
             display: flex;
             flex-direction: column;
             gap: 1.25rem;
@@ -34,14 +34,14 @@
             background: #262421;
             border: 1px solid #36322d;
             border-radius: 10px;
-            padding: 0.75rem 1.25rem;
+            padding: 0.85rem 1.5rem;
         }
 
         .back-link {
             color: #81b64c;
             text-decoration: none;
             font-weight: 700;
-            font-size: 0.95rem;
+            font-size: 1rem;
         }
 
         .back-link:hover {
@@ -51,7 +51,7 @@
         .battle-mode-title {
             color: #ffffff;
             font-weight: 800;
-            font-size: 1.15rem;
+            font-size: 1.25rem;
             display: flex;
             align-items: center;
             gap: 0.5rem;
@@ -61,12 +61,12 @@
             background: #1b1917;
             border: 1px solid #45423e;
             color: #ffffff;
-            padding: 0.4rem 0.9rem;
+            padding: 0.45rem 1.1rem;
             border-radius: 6px;
             font-weight: 800;
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             font-family: monospace;
-            letter-spacing: 1px;
+            letter-spacing: 1.5px;
         }
 
         .battle-timer.urgent {
@@ -80,16 +80,16 @@
             to { transform: scale(1.06); }
         }
 
-        /* Split-HUD Race Header */
+        /* Split-HUD Race Header (Full Desktop Width) */
         .split-hud {
             display: grid;
             grid-template-columns: 1fr auto 1fr;
             align-items: center;
-            gap: 1rem;
+            gap: 1.5rem;
             background: #262421;
             border: 1px solid #36322d;
             border-radius: 12px;
-            padding: 1.25rem;
+            padding: 1.25rem 2rem;
         }
 
         .combatant-card {
@@ -109,7 +109,7 @@
         .combatant-header {
             display: flex;
             align-items: center;
-            gap: 0.5rem;
+            gap: 0.6rem;
         }
 
         .combatant-card.opponent .combatant-header {
@@ -118,21 +118,21 @@
 
         .combatant-name {
             color: #ffffff;
-            font-weight: 700;
-            font-size: 1.1rem;
+            font-weight: 800;
+            font-size: 1.25rem;
         }
 
         .rating-badge {
             background: #36322d;
             color: #e5c07b;
-            padding: 0.15rem 0.5rem;
-            border-radius: 4px;
-            font-size: 0.8rem;
-            font-weight: 700;
+            padding: 0.2rem 0.6rem;
+            border-radius: 5px;
+            font-size: 0.85rem;
+            font-weight: 800;
         }
 
         .combatant-score {
-            font-size: 2.2rem;
+            font-size: 2.6rem;
             font-weight: 900;
             color: #ffffff;
             line-height: 1;
@@ -156,14 +156,14 @@
         }
 
         .strike-box {
-            width: 24px;
-            height: 24px;
+            width: 28px;
+            height: 28px;
             border: 1px solid #45423e;
-            border-radius: 4px;
+            border-radius: 5px;
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             background: #1b1917;
             color: #555555;
             font-weight: 800;
@@ -175,28 +175,28 @@
             border-color: #e74c3c;
         }
 
-        /* Race bar in the center of the HUD */
+        /* Central Race Bar */
         .hud-center {
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 0.5rem;
-            min-width: 180px;
+            gap: 0.6rem;
+            min-width: 240px;
         }
 
         .vs-tag {
             font-weight: 900;
-            font-size: 0.85rem;
-            letter-spacing: 1px;
-            color: #666666;
+            font-size: 0.95rem;
+            letter-spacing: 1.5px;
+            color: #777777;
         }
 
         .race-bar-track {
             width: 100%;
-            height: 12px;
+            height: 16px;
             background: #1b1917;
             border: 1px solid #36322d;
-            border-radius: 6px;
+            border-radius: 8px;
             overflow: hidden;
             display: flex;
         }
@@ -213,75 +213,99 @@
             transition: width 0.3s ease;
         }
 
-        /* Puzzle Arena Stage */
+        /* Puzzle Arena Stage (Expanded Desktop Scale) */
         .battle-stage {
             background: #262421;
             border: 1px solid #36322d;
             border-radius: 12px;
-            padding: 1.75rem;
+            padding: 2rem;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 1.25rem;
+            gap: 1.5rem;
+            width: 100%;
+            box-sizing: border-box;
         }
 
+        /* Large, prominent puzzle image wrapper */
         .battle-puzzle-wrapper {
             background: #1b1917;
             border: 2px solid #36322d;
-            border-radius: 10px;
-            padding: 1rem;
-            max-width: 600px;
+            border-radius: 12px;
+            padding: 1.25rem;
             width: 100%;
+            max-width: 860px;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 280px;
+            min-height: 380px;
             box-sizing: border-box;
         }
 
         .battle-puzzle-img {
             max-width: 100%;
-            max-height: 380px;
-            border-radius: 6px;
+            max-height: 440px;
+            width: auto;
+            height: auto;
+            object-fit: contain;
+            border-radius: 8px;
             display: block;
+            background: #ffffff;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+        }
+
+        /* Prominent Input & Controls */
+        .battle-controls {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1rem;
+            width: 100%;
+            max-width: 600px;
         }
 
         .battle-form {
             display: flex;
-            gap: 0.75rem;
+            gap: 1rem;
             width: 100%;
-            max-width: 380px;
+            max-width: 480px;
+            align-items: center;
+            justify-content: center;
         }
 
         .battle-input {
-            flex: 1;
-            padding: 0.85rem;
-            font-size: 1.4rem;
-            text-align: center;
-            font-weight: 800;
-            background: #1b1917;
-            border: 2px solid #45423e;
-            border-radius: 8px;
-            color: #ffffff;
-            letter-spacing: 2px;
-            outline: none;
+            width: 110px !important;
+            height: 60px !important;
+            padding: 0 !important;
+            font-size: 2.2rem !important;
+            text-align: center !important;
+            font-weight: 900 !important;
+            background: #1b1917 !important;
+            border: 2px solid #81b64c !important;
+            border-radius: 10px !important;
+            color: #ffffff !important;
+            outline: none !important;
+            box-sizing: border-box !important;
+            margin: 0 !important;
         }
 
         .battle-input:focus {
-            border-color: #81b64c;
-            box-shadow: 0 0 0 3px rgba(129, 182, 76, 0.25);
+            box-shadow: 0 0 0 4px rgba(129, 182, 76, 0.35) !important;
         }
 
         .battle-submit-btn {
-            padding: 0.85rem 1.6rem;
-            font-size: 1.1rem;
+            flex: 1;
+            height: 60px;
+            padding: 0 1.8rem;
+            font-size: 1.25rem;
             font-weight: 800;
             background: #81b64c;
             color: #ffffff;
             border: none;
-            border-radius: 8px;
+            border-radius: 10px;
             cursor: pointer;
             transition: background 0.15s ease, transform 0.08s ease;
+            box-sizing: border-box;
         }
 
         .battle-submit-btn:hover {
@@ -289,13 +313,46 @@
         }
 
         .battle-submit-btn:active {
-            transform: scale(0.97);
+            transform: scale(0.98);
+        }
+
+        /* Number Keypad Row (0-9 buttons for desktop click) */
+        .digit-keypad {
+            display: flex;
+            gap: 0.45rem;
+            width: 100%;
+            max-width: 520px;
+            justify-content: center;
+        }
+
+        .btn-digit {
+            flex: 1;
+            height: 46px;
+            background: #1b1917;
+            border: 1px solid #45423e;
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 1.2rem;
+            font-weight: 800;
+            cursor: pointer;
+            transition: all 0.1s ease;
+        }
+
+        .btn-digit:hover {
+            background: #36322d;
+            border-color: #81b64c;
+            color: #81b64c;
+            transform: translateY(-2px);
+        }
+
+        .btn-digit:active {
+            transform: scale(0.94);
         }
 
         .battle-feedback {
             min-height: 1.5rem;
-            font-size: 1.05rem;
-            font-weight: 700;
+            font-size: 1.15rem;
+            font-weight: 800;
             text-align: center;
         }
 
@@ -322,12 +379,16 @@
             padding: 1.5rem;
         }
 
+        .modal-overlay[hidden] {
+            display: none !important;
+        }
+
         .modal-card {
             background: #262421;
             border: 2px solid #36322d;
             border-radius: 14px;
             padding: 2.5rem 2rem;
-            max-width: 480px;
+            max-width: 500px;
             width: 100%;
             text-align: center;
             box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
@@ -335,8 +396,8 @@
 
         /* Radar Pulse Animation for Matchmaking */
         .radar-box {
-            width: 72px;
-            height: 72px;
+            width: 76px;
+            height: 76px;
             margin: 0 auto 1.5rem auto;
             border-radius: 50%;
             background: rgba(129, 182, 76, 0.15);
@@ -344,7 +405,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 2.2rem;
+            font-size: 2.4rem;
             animation: radarPulse 1.6s infinite ease-out;
         }
 
@@ -358,17 +419,17 @@
             display: inline-block;
             background: #1b1917;
             border: 1px solid #45423e;
-            padding: 0.4rem 1rem;
+            padding: 0.4rem 1.1rem;
             border-radius: 6px;
             font-family: monospace;
-            font-size: 1.15rem;
+            font-size: 1.2rem;
             font-weight: 800;
             color: #81b64c;
             margin: 1rem 0;
         }
 
         .modal-title {
-            font-size: 2.1rem;
+            font-size: 2.2rem;
             font-weight: 900;
             margin: 0 0 0.5rem 0;
         }
@@ -383,7 +444,7 @@
             align-items: center;
             gap: 1.5rem;
             margin: 1.5rem 0;
-            font-size: 2.4rem;
+            font-size: 2.6rem;
             font-weight: 900;
         }
 
@@ -391,9 +452,9 @@
             display: inline-block;
             background: #1b1917;
             border: 1px solid #45423e;
-            padding: 0.6rem 1.25rem;
+            padding: 0.65rem 1.4rem;
             border-radius: 8px;
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
             color: #ffffff;
             margin-bottom: 2rem;
@@ -407,7 +468,7 @@
         }
 
         .btn-modal {
-            padding: 0.85rem 1.4rem;
+            padding: 0.9rem 1.5rem;
             border-radius: 8px;
             font-size: 1rem;
             font-weight: 700;
@@ -454,7 +515,7 @@
             <div id="battle-timer" class="battle-timer">03:00</div>
         </header>
 
-        <!-- Split-HUD Race Header -->
+        <!-- Split-HUD Race Header (Full Width) -->
         <section class="split-hud">
             <!-- Player 1 Card -->
             <div class="combatant-card player">
@@ -494,26 +555,42 @@
             </div>
         </section>
 
-        <!-- Puzzle Arena Stage -->
+        <!-- Puzzle Arena Stage (Large, High-Contrast Desktop View) -->
         <main class="battle-stage">
             <div class="battle-puzzle-wrapper">
                 <img id="battle-puzzle-img" class="battle-puzzle-img" src="" alt="Banana Riddle Puzzle" />
             </div>
 
-            <form id="battle-form" class="battle-form">
-                <input
-                    id="battle-input"
-                    class="battle-input"
-                    type="text"
-                    inputmode="numeric"
-                    pattern="[0-9]"
-                    maxlength="1"
-                    placeholder="0-9"
-                    autocomplete="off"
-                    required
-                />
-                <button id="battle-submit-btn" class="battle-submit-btn" type="submit">Submit</button>
-            </form>
+            <div class="battle-controls">
+                <form id="battle-form" class="battle-form">
+                    <input
+                        id="battle-input"
+                        class="battle-input"
+                        type="text"
+                        inputmode="numeric"
+                        pattern="[0-9]"
+                        maxlength="1"
+                        placeholder="?"
+                        autocomplete="off"
+                        required
+                    />
+                    <button id="battle-submit-btn" class="battle-submit-btn" type="submit">Submit Answer</button>
+                </form>
+
+                <!-- Quick Digit Keypad (0-9) for desktop rapid tapping -->
+                <div class="digit-keypad">
+                    <button class="btn-digit" type="button" data-val="0">0</button>
+                    <button class="btn-digit" type="button" data-val="1">1</button>
+                    <button class="btn-digit" type="button" data-val="2">2</button>
+                    <button class="btn-digit" type="button" data-val="3">3</button>
+                    <button class="btn-digit" type="button" data-val="4">4</button>
+                    <button class="btn-digit" type="button" data-val="5">5</button>
+                    <button class="btn-digit" type="button" data-val="6">6</button>
+                    <button class="btn-digit" type="button" data-val="7">7</button>
+                    <button class="btn-digit" type="button" data-val="8">8</button>
+                    <button class="btn-digit" type="button" data-val="9">9</button>
+                </div>
+            </div>
 
             <div id="battle-feedback" class="battle-feedback" role="status"></div>
         </main>
@@ -528,7 +605,7 @@
                 Looking for players near your Elo (±200 rating range).
             </p>
             <div id="queue-timer" class="search-timer-badge">00:00 / 01:00</div>
-            <p id="queue-status" style="color: #888888; font-size: 0.9rem; min-height: 1.4rem;">
+            <p id="queue-status" style="color: #888888; font-size: 0.95rem; min-height: 1.4rem;">
                 Queue active... Open 2nd browser with <strong>rival_player</strong> to pair!
             </p>
             <div class="modal-actions">

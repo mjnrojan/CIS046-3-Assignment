@@ -40,9 +40,9 @@ var opponentBotTimer = null;
 
 /**
  * Initializes the matchmaking queue upon entering battle.html.
+ * Fetches user profile to populate HUD and current Elo rating.
  */
 function startMatchmaking() {
-    // 1. First, fetch user profile to populate HUD and get current Elo
     fetch('/api/me.php', { credentials: 'same-origin' })
         .then(function (res) {
             if (res.status === 401) {
@@ -67,7 +67,7 @@ function startMatchmaking() {
                 qSubtitle.textContent = 'Searching for players near ~' + userRating + ' Elo (±200 rating range).';
             }
 
-            // 2. Register into the queue
+            // Register into the queue
             joinQueue();
         });
 }
@@ -244,7 +244,7 @@ function syncMultiplayerRoom() {
 
             updateRaceBar();
 
-            // If opponent struck out, end match with player victory
+            // If opponent struck out and player has not struck out
             if (opponentStrikes >= 3 && playerStrikes < 3) {
                 endBattle('Opponent struck out (3 strikes)!');
             }
@@ -292,30 +292,29 @@ function startBattleTimer() {
 }
 
 /**
- * Simulates Challenger Bot opponent when playing solo.
+ * Simulates Challenger Bot opponent pacing when playing solo.
+ * The bot scores periodically with a small mistake probability, capped at 2 strikes
+ * so it never prematurely disqualifies itself, keeping the duel active until time expires.
  */
 function startOpponentBotAI() {
     function scheduleNextAction() {
         if (isBattleOver || isMultiplayer) return;
 
+        // Pacing: Bot submits an answer every 7 to 12 seconds
         var delay = Math.floor(Math.random() * 5000) + 7000;
 
         opponentBotTimer = setTimeout(function () {
             if (isBattleOver || isMultiplayer) return;
 
-            var isMistake = Math.random() < 0.15;
+            // 5% chance of mistake, capped at 2 strikes to maintain competitive tension
+            var isMistake = Math.random() < 0.05;
 
-            if (isMistake && opponentStrikes < 3) {
+            if (isMistake && opponentStrikes < 2) {
                 opponentStrikes++;
                 var strikeBox = document.getElementById('o-strike-' + opponentStrikes);
                 if (strikeBox) {
                     strikeBox.classList.add('struck');
                     strikeBox.textContent = '✗';
-                }
-
-                if (opponentStrikes >= 3) {
-                    endBattle('Opponent struck out!');
-                    return;
                 }
             } else {
                 opponentScore++;
@@ -383,20 +382,22 @@ function loadNextBattlePuzzle() {
  * Handles player guess submission and synchronizes state.
  */
 function handleBattleSubmit(event) {
-    event.preventDefault();
+    if (event && event.preventDefault) {
+        event.preventDefault();
+    }
 
     if (isBattleOver || isCheckingGuess) return;
 
     var input = document.getElementById('battle-input');
     var feedback = document.getElementById('battle-feedback');
-    var guessText = input.value.trim();
+    var guessText = input ? input.value.trim() : '';
 
     if (!/^[0-9]$/.test(guessText)) {
         return;
     }
 
     isCheckingGuess = true;
-    input.disabled = true;
+    if (input) input.disabled = true;
 
     submitAnswer(Number(guessText))
         .then(function (correct) {
@@ -442,7 +443,7 @@ function handleBattleSubmit(event) {
         .catch(function (err) {
             console.error('Error submitting guess:', err);
             isCheckingGuess = false;
-            input.disabled = false;
+            if (input) input.disabled = false;
         });
 }
 
@@ -543,6 +544,19 @@ function setupBattleEvents() {
     if (form) {
         form.addEventListener('submit', handleBattleSubmit);
     }
+
+    // Digit keypad buttons (0-9) for desktop rapid tapping
+    var digitButtons = document.querySelectorAll('.btn-digit');
+    digitButtons.forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            var val = btn.getAttribute('data-val');
+            var input = document.getElementById('battle-input');
+            if (input && !input.disabled && !isCheckingGuess && !isBattleOver) {
+                input.value = val;
+                handleBattleSubmit(new Event('submit'));
+            }
+        });
+    });
 
     var btnBot = document.getElementById('btn-force-bot');
     if (btnBot) {
