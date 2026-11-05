@@ -4,6 +4,7 @@
  * Implements high-speed countdown timer, strike tracking (3 strikes max,
  * or 1 strike in Survival mode), rapid sub-5ms puzzle preloading from cache,
  * and game-over score submission to /api/rush.php.
+ * Sound feedback is added via sound.js (must be loaded before this file).
  */
 
 var durationSeconds = 300; // Default 5 minutes
@@ -35,7 +36,7 @@ function configureRushMode() {
         if (modeLabel) modeLabel.textContent = '💀 Survival Mode';
         if (timerEl) timerEl.textContent = 'SURVIVAL';
 
-        // In survival, adjust strikes container to 1 strike
+        // In survival only 1 strike is allowed — hide extra indicators
         var s2 = document.getElementById('strike-2');
         var s3 = document.getElementById('strike-3');
         if (s2) s2.style.display = 'none';
@@ -79,6 +80,7 @@ function updateTimerDisplay() {
 
 /**
  * Ticks the countdown timer every second.
+ * Calls endRushGame when time runs out.
  */
 function startRushTimer() {
     if (isSurvivalMode) return;
@@ -119,12 +121,17 @@ function loadUserHighScore() {
 
 /**
  * Loads a fresh puzzle instantly from the low-latency session cache.
+ * Shows a loading tip on first puzzle load so player has a fact while getting ready.
  */
 function loadNextRushPuzzle() {
     if (isGameOver) return;
 
     var img = document.getElementById('rush-puzzle-img');
     var input = document.getElementById('rush-input');
+
+    if (solvedCount === 0 && typeof showLoadingTip === 'function') {
+        showLoadingTip('⚡ Rush Tip');
+    }
 
     getPuzzle()
         .then(function (url) {
@@ -140,7 +147,8 @@ function loadNextRushPuzzle() {
 }
 
 /**
- * Ends the run, submits final score to /api/rush.php, and displays summary modal.
+ * Ends the run, plays a game-over sound, submits final score to
+ * /api/rush.php, and displays the summary modal.
  */
 function endRushGame(reason) {
     if (isGameOver) return;
@@ -155,6 +163,9 @@ function endRushGame(reason) {
     if (input) input.disabled = true;
     if (submitBtn) submitBtn.disabled = true;
 
+    // Audio: game-over sting when the run ends
+    if (typeof playSound === 'function') { playSound('gameover'); }
+
     // Send completed run to backend
     fetch('/api/rush.php', {
         method: 'POST',
@@ -168,7 +179,6 @@ function endRushGame(reason) {
     })
         .then(function (res) { return res.json(); })
         .then(function (result) {
-            // Open summary modal
             var modal = document.getElementById('rush-summary-modal');
             var scoreVal = document.getElementById('summary-score-val');
             var highBadge = document.getElementById('summary-high-badge');
@@ -186,6 +196,8 @@ function endRushGame(reason) {
 
 /**
  * Attaches form submit and answer evaluation listeners.
+ * Sound is played immediately on submit (click), then again on
+ * correct (solve) or wrong (strike / gameover) outcome.
  */
 function setupRushEvents() {
     var form = document.getElementById('rush-form');
@@ -204,12 +216,15 @@ function setupRushEvents() {
             return;
         }
 
+        // Audio: click sound the moment the player submits
+        if (typeof playSound === 'function') { playSound('click'); }
+
         isCheckingGuess = true;
 
         submitAnswer(Number(guessText))
             .then(function (correct) {
                 if (correct) {
-                    // Correct: increment solve counter
+                    // Correct: increment solve counter and play solve sound
                     solvedCount++;
                     document.getElementById('rush-solve-count').textContent = solvedCount;
 
@@ -218,35 +233,49 @@ function setupRushEvents() {
                         feedback.className = 'rush-feedback correct';
                     }
 
-                    // Load next puzzle immediately
+                    // Audio: quick positive ding on a correct solve
+                    if (typeof playSound === 'function') { playSound('solve'); }
+
+                    // Toast: show affirmation + math fact for solved digit
+                    if (typeof fetchAndShowToast === 'function') {
+                        fetchAndShowToast(Number(guessText), '✓ Correct!');
+                    }
+
                     loadNextRushPuzzle();
                 } else {
-                    // Wrong: add strike
+                    // Wrong: add a strike and play strike buzz
                     strikeCount++;
 
                     if (feedback) {
-                        feedback.textContent = '✗ Wrong!';
+                        feedback.textContent = '✗ Strike ' + strikeCount + ' / 3!';
                         feedback.className = 'rush-feedback wrong';
                     }
 
-                    // Mark strike box UI
+                    // Audio: buzz on a wrong answer
+                    if (typeof playSound === 'function') { playSound('strike'); }
+
+                    // Toast: show encouragement toast on strike
+                    if (typeof fetchAndShowToast === 'function') {
+                        fetchAndShowToast(Number(guessText), '⚡ Strike ' + strikeCount + ' / 3');
+                    }
+
                     var strikeBox = document.getElementById('strike-' + strikeCount);
                     if (strikeBox) {
                         strikeBox.classList.add('active');
+                        strikeBox.textContent = '✕';
                     }
 
-                    // Check strike limits
+                    // gameover sound handled inside endRushGame
                     if (isSurvivalMode || strikeCount >= 3) {
                         endRushGame('3 Strikes accumulated!');
                     } else {
-                        // Load new puzzle because the answer endpoint invalidated previous token
                         loadNextRushPuzzle();
                     }
                 }
             })
-            .catch(function (error) {
+            .catch(function () {
                 if (feedback) {
-                    feedback.textContent = error.message;
+                    feedback.textContent = 'Could not submit answer. Check connection.';
                     feedback.className = 'rush-feedback wrong';
                 }
             })
@@ -255,7 +284,7 @@ function setupRushEvents() {
             });
     });
 
-    // Replay button in summary modal
+    // Replay button in summary modal reloads the page to restart
     var replayBtn = document.getElementById('btn-play-again');
     if (replayBtn) {
         replayBtn.addEventListener('click', function () {

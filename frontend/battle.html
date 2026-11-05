@@ -4,640 +4,178 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Puzzle Battle – Banana Puzzle Arena</title>
-    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="game.css">
     <style>
-        body {
-            background-color: #161512;
-            color: #bababa;
-            margin: 0;
-            padding: 1.5rem 1rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            min-height: 100vh;
-            box-sizing: border-box;
-        }
-
-        .battle-container {
-            width: 100%;
-            max-width: 980px;
-            display: flex;
-            flex-direction: column;
-            gap: 1.25rem;
-        }
-
-        /* Top navigation and match controls */
-        .battle-top-bar {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: #262421;
-            border: 1px solid #36322d;
-            border-radius: 10px;
-            padding: 0.85rem 1.5rem;
-        }
-
-        .back-link {
-            color: #81b64c;
-            text-decoration: none;
-            font-weight: 700;
-            font-size: 1rem;
-        }
-
-        .back-link:hover {
-            text-decoration: underline;
-        }
-
-        .battle-mode-title {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 1.25rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-        }
-
-        .battle-timer {
-            background: #1b1917;
-            border: 1px solid #45423e;
-            color: #ffffff;
-            padding: 0.45rem 1.1rem;
-            border-radius: 6px;
-            font-weight: 800;
-            font-size: 1.35rem;
-            font-family: monospace;
-            letter-spacing: 1.5px;
-        }
-
-        .battle-timer.urgent {
-            background: #962d2d;
-            color: #ffffff;
-            animation: pulseUrgent 0.9s infinite alternate;
-        }
-
-        @keyframes pulseUrgent {
-            from { transform: scale(1); }
-            to { transform: scale(1.06); }
-        }
-
-        /* Split-HUD Race Header (Full Desktop Width) */
-        .split-hud {
-            display: grid;
-            grid-template-columns: 1fr auto 1fr;
-            align-items: center;
-            gap: 1.5rem;
-            background: #262421;
-            border: 1px solid #36322d;
-            border-radius: 12px;
-            padding: 1.25rem 2rem;
-        }
-
-        .combatant-card {
-            display: flex;
-            flex-direction: column;
-            gap: 0.4rem;
-        }
-
-        .combatant-card.player {
-            text-align: left;
-        }
-
-        .combatant-card.opponent {
-            text-align: right;
-        }
-
-        .combatant-header {
-            display: flex;
-            align-items: center;
-            gap: 0.6rem;
-        }
-
-        .combatant-card.opponent .combatant-header {
-            justify-content: flex-end;
-        }
-
-        .combatant-name {
-            color: #ffffff;
-            font-weight: 800;
-            font-size: 1.25rem;
-        }
-
-        .rating-badge {
-            background: #36322d;
-            color: #e5c07b;
-            padding: 0.2rem 0.6rem;
-            border-radius: 5px;
-            font-size: 0.85rem;
-            font-weight: 800;
-        }
-
-        .combatant-score {
-            font-size: 2.6rem;
-            font-weight: 900;
-            color: #ffffff;
-            line-height: 1;
-        }
-
-        .player .combatant-score {
-            color: #81b64c;
-        }
-
-        .opponent .combatant-score {
-            color: #e06c75;
-        }
-
-        .strikes-container {
-            display: flex;
-            gap: 0.4rem;
-        }
-
-        .combatant-card.opponent .strikes-container {
-            justify-content: flex-end;
-        }
-
-        .strike-box {
-            width: 28px;
-            height: 28px;
-            border: 1px solid #45423e;
-            border-radius: 5px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.95rem;
-            background: #1b1917;
-            color: #555555;
-            font-weight: 800;
-        }
-
-        .strike-box.struck {
-            background: #962d2d;
-            color: #ffffff;
-            border-color: #e74c3c;
-        }
-
-        /* Central Race Bar */
-        .hud-center {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 0.6rem;
-            min-width: 240px;
-        }
-
-        .vs-tag {
-            font-weight: 900;
-            font-size: 0.95rem;
-            letter-spacing: 1.5px;
-            color: #777777;
-        }
-
-        .race-bar-track {
-            width: 100%;
-            height: 16px;
-            background: #1b1917;
-            border: 1px solid #36322d;
-            border-radius: 8px;
-            overflow: hidden;
-            display: flex;
-        }
-
-        .race-bar-player {
-            background: #81b64c;
-            width: 50%;
-            transition: width 0.3s ease;
-        }
-
-        .race-bar-opponent {
-            background: #e06c75;
-            width: 50%;
-            transition: width 0.3s ease;
-        }
-
-        /* Puzzle Arena Stage (Expanded Desktop Scale) */
-        .battle-stage {
-            background: #262421;
-            border: 1px solid #36322d;
-            border-radius: 12px;
-            padding: 2rem;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1.5rem;
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        /* Large, prominent puzzle image wrapper */
-        .battle-puzzle-wrapper {
-            background: #1b1917;
-            border: 2px solid #36322d;
-            border-radius: 12px;
-            padding: 1.25rem;
-            width: 100%;
-            max-width: 860px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 380px;
-            box-sizing: border-box;
-        }
-
-        .battle-puzzle-img {
-            max-width: 100%;
-            max-height: 440px;
-            width: auto;
-            height: auto;
-            object-fit: contain;
-            border-radius: 8px;
-            display: block;
-            background: #ffffff;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
-        }
-
-        /* Prominent Input & Controls */
-        .battle-controls {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 1rem;
-            width: 100%;
-            max-width: 600px;
-        }
-
-        .battle-form {
-            display: flex;
-            gap: 1rem;
-            width: 100%;
-            max-width: 480px;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .battle-input {
-            width: 110px !important;
-            height: 60px !important;
-            padding: 0 !important;
-            font-size: 2.2rem !important;
-            text-align: center !important;
-            font-weight: 900 !important;
-            background: #1b1917 !important;
-            border: 2px solid #81b64c !important;
-            border-radius: 10px !important;
-            color: #ffffff !important;
-            outline: none !important;
-            box-sizing: border-box !important;
-            margin: 0 !important;
-        }
-
-        .battle-input:focus {
-            box-shadow: 0 0 0 4px rgba(129, 182, 76, 0.35) !important;
-        }
-
-        .battle-submit-btn {
-            flex: 1;
-            height: 60px;
-            padding: 0 1.8rem;
-            font-size: 1.25rem;
-            font-weight: 800;
-            background: #81b64c;
-            color: #ffffff;
-            border: none;
-            border-radius: 10px;
-            cursor: pointer;
-            transition: background 0.15s ease, transform 0.08s ease;
-            box-sizing: border-box;
-        }
-
-        .battle-submit-btn:hover {
-            background: #95c95d;
-        }
-
-        .battle-submit-btn:active {
-            transform: scale(0.98);
-        }
-
-        /* Number Keypad Row (0-9 buttons for desktop click) */
+        /* Battle-specific digit keypad */
         .digit-keypad {
             display: flex;
-            gap: 0.45rem;
-            width: 100%;
-            max-width: 520px;
-            justify-content: center;
-        }
-
-        .btn-digit {
-            flex: 1;
-            height: 46px;
-            background: #1b1917;
-            border: 1px solid #45423e;
-            border-radius: 8px;
-            color: #ffffff;
-            font-size: 1.2rem;
-            font-weight: 800;
-            cursor: pointer;
-            transition: all 0.1s ease;
-        }
-
-        .btn-digit:hover {
-            background: #36322d;
-            border-color: #81b64c;
-            color: #81b64c;
-            transform: translateY(-2px);
-        }
-
-        .btn-digit:active {
-            transform: scale(0.94);
-        }
-
-        .battle-feedback {
-            min-height: 1.5rem;
-            font-size: 1.15rem;
-            font-weight: 800;
-            text-align: center;
-        }
-
-        .battle-feedback.correct {
-            color: #81b64c;
-        }
-
-        .battle-feedback.wrong {
-            color: #e06c75;
-        }
-
-        /* Modal Overlays (Queue Search & Match Summary) */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0, 0, 0, 0.85);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            padding: 1.5rem;
-        }
-
-        .modal-overlay[hidden] {
-            display: none !important;
-        }
-
-        .modal-card {
-            background: #262421;
-            border: 2px solid #36322d;
-            border-radius: 14px;
-            padding: 2.5rem 2rem;
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            box-shadow: 0 16px 48px rgba(0, 0, 0, 0.65);
-        }
-
-        /* Radar Pulse Animation for Matchmaking */
-        .radar-box {
-            width: 76px;
-            height: 76px;
-            margin: 0 auto 1.5rem auto;
-            border-radius: 50%;
-            background: rgba(129, 182, 76, 0.15);
-            border: 2px solid #81b64c;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 2.4rem;
-            animation: radarPulse 1.6s infinite ease-out;
-        }
-
-        @keyframes radarPulse {
-            0% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(129, 182, 76, 0.6); }
-            70% { transform: scale(1.08); box-shadow: 0 0 0 22px rgba(129, 182, 76, 0); }
-            100% { transform: scale(0.92); box-shadow: 0 0 0 0 rgba(129, 182, 76, 0); }
-        }
-
-        .search-timer-badge {
-            display: inline-block;
-            background: #1b1917;
-            border: 1px solid #45423e;
-            padding: 0.4rem 1.1rem;
-            border-radius: 6px;
-            font-family: monospace;
-            font-size: 1.2rem;
-            font-weight: 800;
-            color: #81b64c;
-            margin: 1rem 0;
-        }
-
-        .modal-title {
-            font-size: 2.2rem;
-            font-weight: 900;
-            margin: 0 0 0.5rem 0;
-        }
-
-        .modal-title.win { color: #81b64c; }
-        .modal-title.loss { color: #e06c75; }
-        .modal-title.draw { color: #e5c07b; }
-
-        .modal-score-box {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 1.5rem;
-            margin: 1.5rem 0;
-            font-size: 2.6rem;
-            font-weight: 900;
-        }
-
-        .modal-rating-badge {
-            display: inline-block;
-            background: #1b1917;
-            border: 1px solid #45423e;
-            padding: 0.65rem 1.4rem;
-            border-radius: 8px;
-            font-size: 1.15rem;
-            font-weight: 700;
-            color: #ffffff;
-            margin-bottom: 2rem;
-        }
-
-        .modal-actions {
-            display: flex;
-            gap: 1rem;
-            justify-content: center;
+            gap: 0.4rem;
             flex-wrap: wrap;
+            justify-content: center;
+            max-width: 360px;
+            width: 100%;
+            flex-shrink: 0;
         }
-
-        .btn-modal {
-            padding: 0.9rem 1.5rem;
+        .btn-digit {
+            width: 52px;
+            height: 44px;
+            font-size: 1.1rem;
+            font-weight: 800;
+            background: var(--panel2);
+            color: var(--white);
+            border: 1px solid var(--border);
             border-radius: 8px;
-            font-size: 1rem;
-            font-weight: 700;
-            text-decoration: none;
             cursor: pointer;
-            border: none;
-            transition: background 0.15s;
+            transition: background 0.1s;
         }
-
-        .btn-modal.primary {
-            background: #81b64c;
-            color: #ffffff;
-        }
-
-        .btn-modal.primary:hover {
-            background: #95c95d;
-        }
-
-        .btn-modal.secondary {
-            background: #36322d;
-            color: #ffffff;
-        }
-
-        .btn-modal.secondary:hover {
-            background: #45423e;
-        }
-
-        .btn-modal.bot {
-            background: #d97706;
-            color: #ffffff;
-        }
-
-        .btn-modal.bot:hover {
-            background: #f59e0b;
-        }
+        .btn-digit:hover { background: #2a2a40; }
+        .btn-digit:active { transform: scale(0.95); }
     </style>
 </head>
-<body>
-    <div class="battle-container">
-        <!-- Top bar: navigation and timer -->
-        <header class="battle-top-bar">
-            <a href="arena.html" class="back-link">← Return to Arena</a>
-            <div class="battle-mode-title">⚔️ 1v1 Puzzle Battle</div>
-            <div id="battle-timer" class="battle-timer">03:00</div>
-        </header>
+<!-- mode-battle hides .classic-only and .rush-only via game.css -->
+<body class="mode-battle">
 
-        <!-- Split-HUD Race Header (Full Width) -->
-        <section class="split-hud">
-            <!-- Player 1 Card -->
-            <div class="combatant-card player">
-                <div class="combatant-header">
-                    <span id="player-username" class="combatant-name">Player</span>
-                    <span id="player-rating-badge" class="rating-badge">500</span>
-                </div>
-                <div id="player-score" class="combatant-score">0</div>
-                <div class="strikes-container">
-                    <div id="p-strike-1" class="strike-box">1</div>
-                    <div id="p-strike-2" class="strike-box">2</div>
-                    <div id="p-strike-3" class="strike-box">3</div>
-                </div>
+    <!-- ── TOP HEADER ─────────────────────────────────────────── -->
+    <header class="game-header">
+        <div class="header-left">
+            <a href="arena.html" class="btn-back" onclick="if(typeof playSound==='function')playSound('click')">⬅ Arena</a>
+            <span class="mode-label">⚔️ Puzzle Battle</span>
+        </div>
+        <div class="header-right">
+            <span class="timer-badge" id="battle-timer">03:00</span>
+            <button class="btn-mute btn-toggle-mute" title="Toggle sound">🔊</button>
+        </div>
+    </header>
+
+    <!-- ── HUD STRIP — battle race bar + scores ───────────────── -->
+    <div class="game-hud">
+        <!-- Player side -->
+        <div class="hud-chip">
+            <span style="color:var(--green)">You</span>:&nbsp;<strong id="player-score">0</strong>
+            <div class="strike-row" style="margin-left:0.5rem;">
+                <div class="strike-box" id="p-strike-1">✕</div>
+                <div class="strike-box" id="p-strike-2">✕</div>
+                <div class="strike-box" id="p-strike-3">✕</div>
             </div>
-
-            <!-- Central Race Bar & VS Badge -->
-            <div class="hud-center">
-                <span class="vs-tag">VS</span>
-                <div class="race-bar-track">
-                    <div id="race-bar-player" class="race-bar-player"></div>
-                    <div id="race-bar-opponent" class="race-bar-opponent"></div>
-                </div>
+        </div>
+        <!-- Race bar -->
+        <div class="race-bar-wrap">
+            <div class="race-bar-player"   id="race-bar-player"></div>
+            <div class="race-bar-opponent" id="race-bar-opponent"></div>
+        </div>
+        <!-- Opponent side -->
+        <div class="hud-chip">
+            <div class="strike-row" style="margin-right:0.5rem;">
+                <div class="strike-box" id="o-strike-1">✕</div>
+                <div class="strike-box" id="o-strike-2">✕</div>
+                <div class="strike-box" id="o-strike-3">✕</div>
             </div>
-
-            <!-- Opponent Card -->
-            <div class="combatant-card opponent">
-                <div class="combatant-header">
-                    <span id="opponent-rating-badge" class="rating-badge">520</span>
-                    <span id="opponent-name" class="combatant-name">Challenger Bot</span>
-                </div>
-                <div id="opponent-score" class="combatant-score">0</div>
-                <div class="strikes-container">
-                    <div id="o-strike-1" class="strike-box">1</div>
-                    <div id="o-strike-2" class="strike-box">2</div>
-                    <div id="o-strike-3" class="strike-box">3</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Puzzle Arena Stage (Large, High-Contrast Desktop View) -->
-        <main class="battle-stage">
-            <div class="battle-puzzle-wrapper">
-                <img id="battle-puzzle-img" class="battle-puzzle-img" src="" alt="Banana Riddle Puzzle" />
-            </div>
-
-            <div class="battle-controls">
-                <form id="battle-form" class="battle-form">
-                    <input
-                        id="battle-input"
-                        class="battle-input"
-                        type="text"
-                        inputmode="numeric"
-                        pattern="[0-9]"
-                        maxlength="1"
-                        placeholder="?"
-                        autocomplete="off"
-                        required
-                    />
-                    <button id="battle-submit-btn" class="battle-submit-btn" type="submit">Submit Answer</button>
-                </form>
-
-                <!-- Quick Digit Keypad (0-9) for desktop rapid tapping -->
-                <div class="digit-keypad">
-                    <button class="btn-digit" type="button" data-val="0">0</button>
-                    <button class="btn-digit" type="button" data-val="1">1</button>
-                    <button class="btn-digit" type="button" data-val="2">2</button>
-                    <button class="btn-digit" type="button" data-val="3">3</button>
-                    <button class="btn-digit" type="button" data-val="4">4</button>
-                    <button class="btn-digit" type="button" data-val="5">5</button>
-                    <button class="btn-digit" type="button" data-val="6">6</button>
-                    <button class="btn-digit" type="button" data-val="7">7</button>
-                    <button class="btn-digit" type="button" data-val="8">8</button>
-                    <button class="btn-digit" type="button" data-val="9">9</button>
-                </div>
-            </div>
-
-            <div id="battle-feedback" class="battle-feedback" role="status"></div>
-        </main>
+            <span style="color:var(--red)" id="opponent-name">Opponent</span>:&nbsp;<strong id="opponent-score">0</strong>
+        </div>
     </div>
 
-    <!-- Matchmaking Modal (Chess.com style queue finder) -->
-    <div id="matchmaking-modal" class="modal-overlay">
-        <div class="modal-card">
-            <div class="radar-box">🍌</div>
-            <h2 id="queue-title" class="modal-title" style="color: #ffffff;">Finding Opponent...</h2>
-            <p id="queue-subtitle" style="color: #bababa; margin: 0.5rem 0;">
-                Looking for players near your Elo (±200 rating range).
+    <!-- ── PUZZLE STAGE ───────────────────────────────────────── -->
+    <main class="puzzle-stage">
+        <!-- Player name plates row -->
+        <div class="battle-players">
+            <div class="player-side">
+                <span class="player-name" id="player-username">You</span>
+                <span class="rating-badge" id="player-rating-badge">500 Elo</span>
+            </div>
+            <span class="vs-label">VS</span>
+            <div class="player-side right">
+                <span class="player-name" id="opponent-username-plate">Opponent</span>
+                <span class="rating-badge" id="opponent-rating-badge">500 Elo</span>
+            </div>
+        </div>
+
+        <!-- Puzzle image card -->
+        <div class="puzzle-card">
+            <img id="battle-puzzle-img" class="puzzle-img" alt="Banana Battle puzzle">
+        </div>
+
+        <!-- Typed input row -->
+        <form id="battle-form" class="input-row" autocomplete="off">
+            <input
+                id="battle-input"
+                class="input-digit"
+                type="text"
+                inputmode="numeric"
+                pattern="[0-9]"
+                maxlength="1"
+                placeholder="?"
+                autocomplete="off"
+                required
+                autofocus
+            >
+            <button id="battle-submit-btn" class="btn-submit" type="submit">Submit</button>
+        </form>
+
+        <!-- Quick digit keypad (0-9) for rapid tapping -->
+        <div class="digit-keypad">
+            <button class="btn-digit" type="button" data-val="0">0</button>
+            <button class="btn-digit" type="button" data-val="1">1</button>
+            <button class="btn-digit" type="button" data-val="2">2</button>
+            <button class="btn-digit" type="button" data-val="3">3</button>
+            <button class="btn-digit" type="button" data-val="4">4</button>
+            <button class="btn-digit" type="button" data-val="5">5</button>
+            <button class="btn-digit" type="button" data-val="6">6</button>
+            <button class="btn-digit" type="button" data-val="7">7</button>
+            <button class="btn-digit" type="button" data-val="8">8</button>
+            <button class="btn-digit" type="button" data-val="9">9</button>
+        </div>
+
+        <!-- Feedback line -->
+        <div id="battle-feedback" class="status-line" role="status"></div>
+    </main>
+
+    <!-- ── MATCHMAKING QUEUE OVERLAY ─────────────────────────── -->
+    <div id="matchmaking-modal" class="queue-overlay">
+        <div class="queue-card">
+            <div class="queue-spinner">🍌</div>
+            <div class="queue-title" id="queue-title">Finding Opponent…</div>
+            <p class="queue-status" id="queue-subtitle">
+                Searching for players near your Elo (±200 range).
             </p>
-            <div id="queue-timer" class="search-timer-badge">00:00 / 01:00</div>
-            <p id="queue-status" style="color: #888888; font-size: 0.95rem; min-height: 1.4rem;">
-                Queue active... Open 2nd browser with <strong>rival_player</strong> to pair!
+            <div class="queue-timer" id="queue-timer">00:00 / 01:00</div>
+            <p class="queue-status" id="queue-status">
+                Open a 2nd browser tab as <strong>rival_player</strong> to pair instantly.
             </p>
-            <div class="modal-actions">
-                <button id="btn-force-bot" class="btn-modal bot" type="button">Challenge Bot</button>
-                <button id="btn-cancel-queue" class="btn-modal secondary" type="button">Cancel</button>
+            <div style="display:flex;gap:0.75rem;justify-content:center;">
+                <button id="btn-force-bot"    class="btn-modal-action" type="button">Challenge Bot</button>
+                <button id="btn-cancel-queue" class="btn-modal-action secondary" type="button">Cancel</button>
             </div>
         </div>
     </div>
 
-    <!-- Match Summary Modal -->
+    <!-- ── MATCH SUMMARY MODAL ────────────────────────────────── -->
     <div id="battle-modal" class="modal-overlay" hidden>
         <div class="modal-card">
-            <h2 id="modal-title" class="modal-title win">🏆 VICTORY!</h2>
-            <p id="modal-subtitle">Match concluded.</p>
-
-            <div class="modal-score-box">
-                <span id="modal-player-score" style="color: #81b64c;">0</span>
-                <span style="color: #666666;">-</span>
-                <span id="modal-opponent-score" style="color: #e06c75;">0</span>
+            <div class="modal-title win" id="modal-title">🏆 VICTORY!</div>
+            <p class="modal-rating" id="modal-subtitle">Match concluded.</p>
+            <div class="modal-score">
+                <strong id="modal-player-score" style="color:var(--green)">0</strong>
+                <span style="color:var(--muted);margin:0 0.5rem;">–</span>
+                <strong id="modal-opponent-score" style="color:var(--red)">0</strong>
             </div>
-
-            <div id="modal-rating-badge" class="modal-rating-badge">
-                Rating: 500 → 525 (+25)
-            </div>
-
-            <div class="modal-actions">
-                <button id="btn-play-again" class="btn-modal primary" onclick="window.location.reload();">Battle Again</button>
-                <a href="arena.html" class="btn-modal secondary">Arena Hub</a>
+            <div class="modal-rating" id="modal-rating-badge">Rating: 500 → 525 (+25)</div>
+            <div style="display:flex;gap:0.75rem;justify-content:center;">
+                <button id="btn-play-again" class="btn-modal-action" onclick="window.location.reload()">Battle Again</button>
+                <a href="arena.html" class="btn-modal-action secondary">Arena Hub</a>
             </div>
         </div>
     </div>
 
+    <!-- ── ENCOURAGEMENT TOAST ────────────────────────────────── -->
+    <div id="encouragement-toast" class="toast-banner" hidden>
+        <span class="toast-label" id="toast-label">💬 Keep it up!</span>
+        <span id="toast-message">You are doing great!</span>
+        <span class="toast-fact" id="toast-fact" hidden></span>
+    </div>
+
+    <!-- ── SCRIPTS ────────────────────────────────────────────── -->
+    <script src="js/sound.js"></script>
+    <script src="js/toast.js"></script>
     <script src="js/api.js"></script>
     <script src="js/battle.js"></script>
     <script src="js/dev-reload.js"></script>

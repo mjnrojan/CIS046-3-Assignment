@@ -4,6 +4,10 @@
  * Fetches authenticated user identity and stats from /api/me.php,
  * updates the Chess.com-style rating badges, and handles mode routing
  * for Classic Ladder, Puzzle Rush, and Puzzle Battle.
+ *
+ * Also silently warms up the puzzle and sound session caches via
+ * /api/warmup.php so the first puzzle in every game mode loads
+ * instantly from memory instead of blocking on the remote API.
  */
 
 /**
@@ -50,6 +54,30 @@ function loadUserProfile() {
         })
         .catch(function (error) {
             console.error('Profile fetch error:', error);
+        });
+}
+
+/**
+ * Silently warms up the puzzle and sound session caches.
+ *
+ * Fires one background request to /api/warmup.php while the player
+ * is still browsing the arena hub. PHP fills up to 5 puzzles into
+ * the session FIFO queue and marks the sound cache ready.
+ * By the time the player clicks any game mode, the first puzzle
+ * is already in memory — no waiting on the remote Banana API.
+ *
+ * Errors are swallowed because a warm-up failure is non-critical;
+ * each game mode already has its own fallback fetch.
+ */
+function warmUpCaches() {
+    fetch('/api/warmup.php', { credentials: 'same-origin' })
+        .then(function (res) { return res.json(); })
+        .then(function (stats) {
+            console.log('[warmup] puzzles cached:', stats.puzzles_cached,
+                        '| sounds ready:', stats.sounds_ready);
+        })
+        .catch(function () {
+            // Non-critical — game modes handle a cold cache gracefully
         });
 }
 
@@ -118,4 +146,5 @@ function setupArenaEvents() {
 window.addEventListener('load', function () {
     loadUserProfile();
     setupArenaEvents();
+    warmUpCaches();   // kick off background cache fill while player is on hub
 });
