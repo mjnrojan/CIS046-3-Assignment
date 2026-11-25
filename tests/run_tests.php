@@ -418,7 +418,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
     );
 
     // 3.6 Filesystem change-detection polling event (Live dev reload)
-    $mtime = DevWatchService::latestMtime(__DIR__ . '/../frontend');
+    $mtime = DevWatchService::latestMtime(__DIR__ . '/../public/frontend');
     assertTest(
         'Change-detection polling event computes latest frontend mtime timestamp',
         $mtime > 0,
