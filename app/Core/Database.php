@@ -14,39 +14,6 @@ class Database
     private static ?PDO $connection = null;
 
     /**
-     * Reads key=value pairs from the .env file at the project root.
-     * This avoids needing a third-party library like vlucas/phpdotenv.
-     * Lines starting with # and blank lines are skipped.
-     */
-    private static function loadEnv(): array
-    {
-        $path = __DIR__ . '/../.env';
-
-        if (!file_exists($path)) {
-            throw new RuntimeException('.env file not found. Copy .env.example to .env and fill in your values.');
-        }
-
-        $lines = file($path, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);
-        $vars = [];
-
-        foreach ($lines as $line) {
-            // Skip comments.
-            if (str_starts_with(trim($line), '#')) {
-                continue;
-            }
-
-            // Split on the first = sign only, so values can contain =.
-            $parts = explode('=', $line, 2);
-
-            if (count($parts) === 2) {
-                $vars[trim($parts[0])] = trim($parts[1]);
-            }
-        }
-
-        return $vars;
-    }
-
-    /**
      * Returns the shared PDO connection.
      * Creates it on the first call, reuses it on every later call.
      *
@@ -60,14 +27,16 @@ class Database
             return self::$connection;
         }
 
-        $env = self::loadEnv();
+        if (!Env::fileExists()) {
+            throw new RuntimeException('.env file not found. Copy .env.example to .env and fill in your values.');
+        }
 
         $dsn = sprintf(
             'mysql:host=%s;port=%s;dbname=%s;charset=%s',
-            $env['DB_HOST'],
-            $env['DB_PORT'],
-            $env['DB_NAME'],
-            $env['DB_CHARSET']
+            Env::get('DB_HOST'),
+            Env::get('DB_PORT'),
+            Env::get('DB_NAME'),
+            Env::get('DB_CHARSET')
         );
 
         // PDO options:
@@ -75,7 +44,7 @@ class Database
         // FETCH_ASSOC       — rows come back as arrays, not objects.
         // EMULATE_PREPARES off — the database does the real preparing,
         //   which is safer and catches type errors earlier.
-        self::$connection = new PDO($dsn, $env['DB_USER'], $env['DB_PASS'], [
+        self::$connection = new PDO($dsn, Env::get('DB_USER'), Env::get('DB_PASS'), [
             PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
             PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
             PDO::ATTR_EMULATE_PREPARES   => false,

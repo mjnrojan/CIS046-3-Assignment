@@ -28,9 +28,7 @@ ob_start();
  *   php tests/run_tests.php --theme=events         # Demonstrate Event Handling only
  */
 
-require_once __DIR__ . '/../src/session.php';
-require_once __DIR__ . '/../src/Database.php';
-require_once __DIR__ . '/../src/puzzle_cache.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 // Configure session for CLI demonstration environment
 if (session_status() === PHP_SESSION_NONE) {
@@ -224,7 +222,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     // 2.1 Cold-start third-party API proxying
     $_SESSION['puzzle_cache'] = []; // Clear cache to force remote fetch
     $startCold = microtime(true);
-    $coldPuzzle = popNextPuzzle();
+    $coldPuzzle = PuzzleCacheService::popNext();
     $coldLatency = (microtime(true) - $startCold) * 1000;
 
     assertTest(
@@ -247,7 +245,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     ];
 
     $startWarm = microtime(true);
-    $cachedPuzzle = popNextPuzzle();
+    $cachedPuzzle = PuzzleCacheService::popNext();
     $warmLatency = (microtime(true) - $startWarm) * 1000;
 
     assertTest(
@@ -300,7 +298,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     $playerElo = 500;
     $rivalElo = 515;
     $eloDifference = abs($playerElo - $rivalElo);
-    $canMatch = ($eloDifference <= 200);
+    $canMatch = ($eloDifference <= MatchmakingService::MAX_RATING_GAP);
 
     assertTest(
         'Matchmaking engine pairs rivals within <= 200 Elo difference',
@@ -311,7 +309,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
     // 2.9 Elo Matchmaking filter: rejects candidates beyond 200 rating points
     $distantElo = 750;
     $distantDiff = abs($playerElo - $distantElo);
-    $isRejected = ($distantDiff > 200);
+    $isRejected = ($distantDiff > MatchmakingService::MAX_RATING_GAP);
 
     assertTest(
         'Matchmaking engine rejects players with > 200 Elo disparity',
@@ -321,7 +319,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'interop') {
 
     // 2.10 Ghost player TTL: ignores queue entries older than 10 seconds
     $staleSeconds = 15;
-    $isStale = ($staleSeconds > 10);
+    $isStale = ($staleSeconds > MatchmakingService::HEARTBEAT_TTL);
     assertTest(
         'Heartbeat TTL filter neutralizes abandoned ghost queues older than 10s',
         $isStale
@@ -354,17 +352,17 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
 
     // Mistake Event #1
     $_SESSION['ladder_attempts']++;
-    $chip1 = max(10, 50 - ($_SESSION['ladder_attempts'] * 15));
+    $chip1 = LadderService::potentialPoints($_SESSION['ladder_attempts']);
     assertTest('Mistake Event #1 chips potential reward: 50 -> 35 pts', $chip1 === 35);
 
     // Mistake Event #2
     $_SESSION['ladder_attempts']++;
-    $chip2 = max(10, 50 - ($_SESSION['ladder_attempts'] * 15));
+    $chip2 = LadderService::potentialPoints($_SESSION['ladder_attempts']);
     assertTest('Mistake Event #2 chips potential reward: 35 -> 20 pts', $chip2 === 20);
 
     // Mistake Event #3 (floor limit)
     $_SESSION['ladder_attempts']++;
-    $chip3 = max(10, 50 - ($_SESSION['ladder_attempts'] * 15));
+    $chip3 = LadderService::potentialPoints($_SESSION['ladder_attempts']);
     assertTest('Mistake Event #3 enforces floor limit of 10 pts (never negative)', $chip3 === 10);
 
     // 3.2 Solve Event: Database state transition
@@ -420,26 +418,20 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
     );
 
     // 3.6 Filesystem change-detection polling event (Live dev reload)
-    ob_start();
-    @require_once __DIR__ . '/../api/dev_watch.php';
-    ob_end_clean();
-
-    if (function_exists('getLatestFrontendMtime')) {
-        $mtime = getLatestFrontendMtime(__DIR__ . '/../frontend');
-        assertTest(
-            'Change-detection polling event computes latest frontend mtime timestamp',
-            $mtime > 0,
-            "Latest mtime: {$mtime}"
-        );
-    }
+    $mtime = DevWatchService::latestMtime(__DIR__ . '/../frontend');
+    assertTest(
+        'Change-detection polling event computes latest frontend mtime timestamp',
+        $mtime > 0,
+        "Latest mtime: {$mtime}"
+    );
 
     // 3.7 Puzzle Battle 1v1 victory state transition event (more solves)
     $pScore = 12;
     $oScore = 9;
     $pStrikes = 1;
     $oStrikes = 2;
-    $battleWon = ($pScore > $oScore && $pStrikes < 3);
-    $ratingChange = $battleWon ? +25 : -15;
+    $battleWon = (BattleService::resolveOutcome($pScore, $oScore, $pStrikes, $oStrikes) === 'win');
+    $ratingChange = BattleService::ratingDelta($battleWon ? 'win' : 'loss');
 
     assertTest(
         '1v1 Battle victory event triggers Win outcome and awards +25 Elo',
@@ -449,7 +441,7 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
     // 3.8 Puzzle Battle opponent strikeout event (3 strikes)
     $oStrikesOut = 3;
     $pStrikesAlive = 1;
-    $strikeoutWin = ($oStrikesOut >= 3 && $pStrikesAlive < 3);
+    $strikeoutWin = (BattleService::resolveOutcome(0, 0, $pStrikesAlive, $oStrikesOut) === 'win');
 
     assertTest(
         'Opponent strikeout event (3 strikes) triggers instant Player Victory',
@@ -458,8 +450,8 @@ if ($selectedTheme === 'all' || $selectedTheme === 'events') {
 
     // 3.9 Battle Rating floor enforcement event (minimum 100 Elo)
     $lowRating = 105;
-    $lossDelta = -15;
-    $enforcedFloorRating = max(100, $lowRating + $lossDelta);
+    $lossDelta = BattleService::ratingDelta('loss');
+    $enforcedFloorRating = max(BattleService::RATING_FLOOR, $lowRating + $lossDelta);
 
     assertTest(
         'Defeat rating deduction enforces 100 Elo minimum rating floor',

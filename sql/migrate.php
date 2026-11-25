@@ -9,7 +9,7 @@
  * Run from terminal: php sql/migrate.php
  */
 
-require_once __DIR__ . '/../src/Database.php';
+require_once __DIR__ . '/../app/bootstrap.php';
 
 echo "=== Banana Puzzle Arena Schema Migration ===\n";
 
