@@ -55,11 +55,12 @@ start.bat --reset      :: wipe + recreate tables and demo accounts first (asks t
 It runs `tools/preflight.php` (PHP version, extensions, `.env`, MySQL, tables, Freesound key),
 then starts PHP's built-in server and opens the browser. One server serves both the
 frontend (`/frontend/`) and the JSON API (`/api/`) from the same origin, so no CORS setup is needed.
+Only `public/` is the web root: `.env`, `app/`, `sql/`, `tests/` and `.git/` cannot be requested from a browser.
 
 Manual equivalent:
 ```bash
 php tools/preflight.php
-php -S localhost:8000 -t .
+php -S localhost:8000 -t public
 ```
 
 ### 4. Access the Application
@@ -164,10 +165,26 @@ php tests/run_tests.php --theme=events
 ## Project Structure
 
 ```
-├── api/                    # Thin entry points: run middleware, call one controller (URLs unchanged)
-│   ├── answer.php  battle.php  dev_watch.php  encouragement.php  ladder.php
-│   ├── leaderboard.php  login.php  logout.php  me.php  puzzle.php  register.php
-│   └── rush.php  sounds.php  sounds_preload.php  warmup.php
+├── public/                   # WEB ROOT: the only folder a browser can reach
+│   ├── api/                # Thin entry points: run middleware, call one controller
+│   │   ├── answer.php  battle.php  dev_watch.php  encouragement.php  ladder.php
+│   │   ├── leaderboard.php  login.php  logout.php  me.php  puzzle.php  register.php
+│   │   └── rush.php  sounds.php  sounds_preload.php  warmup.php
+│   └── frontend/
+│       ├── arena.html          # Main Arena navigation hub
+│       ├── battle.html         # 1v1 real-time Puzzle Battle duel arena
+│       ├── classic.html        # Classic Ladder adventure mode
+│       ├── index.html          # Coursework demonstration & feature showcase
+│       ├── leaderboard.html    # Ranked podium leaderboards
+│       ├── login.html          # User login and registration form
+│       ├── rush.html           # Puzzle Rush and Survival modes
+│       ├── style.css           # Global dark arena styles
+│       └── js/
+│           ├── api.js          # Shared fetch client and puzzle cache consumer
+│           ├── battle.js       # Battle duel controller & room sync loop
+│           ├── classic.js      # Classic ladder state machine
+│           ├── leaderboard.js  # Leaderboard tabs and rank renderer
+│           └── rush.js         # Puzzle rush sprint timer and strikes handler
 ├── app/
 │   ├── bootstrap.php       # Loads every class below in dependency order
 │   ├── Core/
@@ -191,21 +208,6 @@ php tests/run_tests.php --theme=events
 ├── tools/
 │   └── preflight.php       # Environment checks used by start.bat
 ├── start.bat               # One-click launcher (frontend + backend)
-├── frontend/
-│   ├── arena.html          # Main Arena navigation hub
-│   ├── battle.html         # 1v1 real-time Puzzle Battle duel arena
-│   ├── classic.html        # Classic Ladder adventure mode
-│   ├── index.html          # Coursework demonstration & feature showcase
-│   ├── leaderboard.html    # Ranked podium leaderboards
-│   ├── login.html          # User login and registration form
-│   ├── rush.html           # Puzzle Rush and Survival modes
-│   ├── style.css           # Global dark arena styles
-│   └── js/
-│       ├── api.js          # Shared fetch client and puzzle cache consumer
-│       ├── battle.js       # Battle duel controller & room sync loop
-│       ├── classic.js      # Classic ladder state machine
-│       ├── leaderboard.js  # Leaderboard tabs and rank renderer
-│       └── rush.js         # Puzzle rush sprint timer and strikes handler
 ├── sql/
 │   ├── migrate.php         # Migration runner and test account seeder
 │   └── schema.sql          # Relational database table definitions

@@ -7,6 +7,9 @@ REM    frontend  -> http://localhost:PORT/frontend/   (HTML, CSS, JS)
 REM    backend   -> http://localhost:PORT/api/        (PHP JSON endpoints)
 REM  One origin means no CORS setup and the session cookie just works.
 REM
+REM  Only the public\ folder is the web root. .env, app\, sql\, tests\ and
+REM  .git\ sit outside it, so a browser can never download or run them.
+REM
 REM  Usage:
 REM    start.bat              start on port 8000
 REM    start.bat 9000         start on another port
@@ -67,4 +70,4 @@ REM Open the browser shortly after the server starts.
 REM "ping -n 3" is a ~2 second pause that works in any console (timeout.exe does not).
 start "" /b cmd /c "ping -n 3 127.0.0.1 >nul & start http://localhost:%PORT%/frontend/index.html"
 
-php -S localhost:%PORT% -t .
+php -S localhost:%PORT% -t public
