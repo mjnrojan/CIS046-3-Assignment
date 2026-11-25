@@ -10,6 +10,7 @@
  * - Challenger Bot fallback if solo or search expires.
  * - Synchronized 3-minute countdown clock and live split HUD race bar.
  * - Match resolution and Elo rating updates (+25 on win, -15 on loss).
+ * Sound feedback via sound.js (must be loaded before this file).
  */
 
 var timeRemaining = 180; // 3 minutes
@@ -65,6 +66,11 @@ function startMatchmaking() {
             var qSubtitle = document.getElementById('queue-subtitle');
             if (qSubtitle) {
                 qSubtitle.textContent = 'Searching for players near ~' + userRating + ' Elo (±200 rating range).';
+            }
+
+            // Show a math tip while matchmaking searches for an opponent
+            if (typeof showLoadingTip === 'function') {
+                showLoadingTip('⚔️ Battle Tip');
             }
 
             // Register into the queue
@@ -234,10 +240,10 @@ function syncMultiplayerRoom() {
                 if (sBox) {
                     if (i <= opponentStrikes) {
                         sBox.classList.add('struck');
-                        sBox.textContent = '✗';
+                        sBox.textContent = '✕';
                     } else {
                         sBox.classList.remove('struck');
-                        sBox.textContent = '' + i;
+                        sBox.textContent = '✕';
                     }
                 }
             }
@@ -314,7 +320,7 @@ function startOpponentBotAI() {
                 var strikeBox = document.getElementById('o-strike-' + opponentStrikes);
                 if (strikeBox) {
                     strikeBox.classList.add('struck');
-                    strikeBox.textContent = '✗';
+                    strikeBox.textContent = '✕';
                 }
             } else {
                 opponentScore++;
@@ -380,6 +386,7 @@ function loadNextBattlePuzzle() {
 
 /**
  * Handles player guess submission and synchronizes state.
+ * Plays click sound immediately, then solve or strike on result.
  */
 function handleBattleSubmit(event) {
     if (event && event.preventDefault) {
@@ -396,6 +403,9 @@ function handleBattleSubmit(event) {
         return;
     }
 
+    // Audio: click sound the instant the player submits a digit
+    if (typeof playSound === 'function') { playSound('click'); }
+
     isCheckingGuess = true;
     if (input) input.disabled = true;
 
@@ -411,6 +421,14 @@ function handleBattleSubmit(event) {
                     feedback.className = 'battle-feedback correct';
                 }
 
+                // Audio: quick solve ding on a correct battle answer
+                if (typeof playSound === 'function') { playSound('solve'); }
+
+                // Toast: encouragement on correct answer
+                if (typeof fetchAndShowToast === 'function') {
+                    fetchAndShowToast(Number(guessText), '✓ Correct!');
+                }
+
                 updateRaceBar();
 
                 // Immediately sync live score so opponent sees it right away
@@ -422,12 +440,20 @@ function handleBattleSubmit(event) {
                 var strikeBox = document.getElementById('p-strike-' + playerStrikes);
                 if (strikeBox) {
                     strikeBox.classList.add('struck');
-                    strikeBox.textContent = '✗';
+                    strikeBox.textContent = '✕';
                 }
 
                 if (feedback) {
                     feedback.textContent = '✗ Strike ' + playerStrikes + ' / 3!';
                     feedback.className = 'battle-feedback wrong';
+                }
+
+                // Audio: buzz on a wrong answer
+                if (typeof playSound === 'function') { playSound('strike'); }
+
+                // Toast: encouragement on strike
+                if (typeof fetchAndShowToast === 'function') {
+                    fetchAndShowToast(Number(guessText), '⚔️ Strike ' + playerStrikes + ' / 3');
                 }
 
                 // Immediately sync strikes
@@ -440,16 +466,19 @@ function handleBattleSubmit(event) {
                 }
             }
         })
-        .catch(function (err) {
-            console.error('Error submitting guess:', err);
+        .catch(function () {
+            if (feedback) {
+                feedback.textContent = 'Could not submit answer. Check connection.';
+                feedback.className = 'battle-feedback wrong';
+            }
             isCheckingGuess = false;
             if (input) input.disabled = false;
         });
 }
 
 /**
- * Concludes the duel, calls /api/battle.php to record result and update Elo,
- * and presents the summary modal.
+ * Concludes the duel, plays a win or loss sound, calls /api/battle.php
+ * to record result and update Elo, and presents the summary modal.
  */
 function endBattle(reason) {
     if (isBattleOver) return;
@@ -495,12 +524,18 @@ function endBattle(reason) {
                 if (result.outcome === 'win') {
                     titleEl.textContent = '🏆 VICTORY!';
                     titleEl.className = 'modal-title win';
+                    // Audio: victory fanfare on a win
+                    if (typeof playSound === 'function') { playSound('levelup'); }
                 } else if (result.outcome === 'loss') {
                     titleEl.textContent = '💀 DEFEAT';
                     titleEl.className = 'modal-title loss';
+                    // Audio: game-over sting on a loss
+                    if (typeof playSound === 'function') { playSound('gameover'); }
                 } else {
                     titleEl.textContent = '🤝 DRAW';
                     titleEl.className = 'modal-title draw';
+                    // Audio: game-over sting on a draw (no winner)
+                    if (typeof playSound === 'function') { playSound('gameover'); }
                 }
             }
 
@@ -538,6 +573,7 @@ function cancelMatchmaking() {
 
 /**
  * Attaches DOM listeners on load.
+ * Digit keypad buttons also play a click sound for tactile feedback.
  */
 function setupBattleEvents() {
     var form = document.getElementById('battle-form');
@@ -552,6 +588,8 @@ function setupBattleEvents() {
             var val = btn.getAttribute('data-val');
             var input = document.getElementById('battle-input');
             if (input && !input.disabled && !isCheckingGuess && !isBattleOver) {
+                // Audio: click on each digit keypad tap
+                if (typeof playSound === 'function') { playSound('click'); }
                 input.value = val;
                 handleBattleSubmit(new Event('submit'));
             }

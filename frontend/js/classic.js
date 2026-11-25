@@ -1,8 +1,9 @@
 /**
  * Classic Ladder client controller.
  *
- * Coordinates stepping stone path rendering, puzzle loading,
- * and guess submission with server-side 50-point chip-away scoring.
+ * Coordinates puzzle loading and guess submission with server-side
+ * 50-point chip-away scoring. Relies on toast.js for encouragement
+ * toasts and sound.js for audio feedback.
  */
 
 var currentLadderNode = 1;
@@ -11,15 +12,13 @@ var isSubmitting = false;
 
 /**
  * Renders the visual stepping stone trail.
- * Displays completed nodes, the active current node, and upcoming nodes.
+ * Falls back gracefully if #stones-container does not exist in the DOM.
  */
 function renderSteppingStones(activeNode) {
     var container = document.getElementById('stones-container');
-    if (!container) return;
+    if (!container) return;   // wide layout has no sidebar — safe no-op
 
     container.innerHTML = '';
-
-    // Show a window of nodes: up to 6 nodes ahead
     var maxNodeToShow = Math.max(10, activeNode + 5);
 
     for (var i = 1; i <= maxNodeToShow; i++) {
@@ -58,40 +57,39 @@ function loadLadderState() {
             currentLadderNode = data.ladder_node;
             totalLadderPoints = data.ladder_points;
 
-            // Update top bar
-            var pointsEl = document.getElementById('header-ladder-points');
+            var pointsEl  = document.getElementById('header-ladder-points');
             var nodeIndEl = document.getElementById('header-node-indicator');
-            var activeTitleEl = document.getElementById('active-node-title');
-            var rewardBadge = document.getElementById('potential-reward-badge');
 
-            if (pointsEl) pointsEl.textContent = totalLadderPoints.toLocaleString();
-            if (nodeIndEl) nodeIndEl.textContent = 'Node #' + currentLadderNode;
-            if (activeTitleEl) activeTitleEl.textContent = 'Active: Node #' + currentLadderNode;
-            if (rewardBadge) rewardBadge.textContent = '⭐ Potential: +' + data.potential_points + ' pts';
+            if (pointsEl)  pointsEl.textContent  = totalLadderPoints.toLocaleString();
+            if (nodeIndEl) nodeIndEl.textContent  = 'Node #' + currentLadderNode;
 
             renderSteppingStones(currentLadderNode);
         })
-        .catch(function (error) {
-            console.error('Ladder state error:', error);
+        .catch(function () {
+            // Silent — header stats are non-critical
             renderSteppingStones(1);
         });
 }
 
 /**
- * Loads a fresh puzzle into the view via /api/puzzle.php (served from cache).
+ * Loads a fresh puzzle image via /api/puzzle.php.
+ * While the image is fetching, shows a fun number fact in the toast
+ * so the player has something interesting to read during the load.
  */
 function loadNextLadderPuzzle() {
-    var img = document.getElementById('ladder-puzzle-img');
-    var loader = document.getElementById('ladder-puzzle-loader');
+    var img       = document.getElementById('ladder-puzzle-img');
+    var loader    = document.getElementById('ladder-puzzle-loader');
     var statusMsg = document.getElementById('ladder-status-msg');
 
     if (loader) loader.style.display = 'block';
-    if (img) img.style.display = 'none';
-
+    if (img)    img.style.display    = 'none';
     if (statusMsg) {
-        statusMsg.textContent = 'Loading node challenge...';
-        statusMsg.className = 'status-msg';
+        statusMsg.textContent = '';
+        statusMsg.className   = 'status-line';
     }
+
+    // Show a fun number fact while the puzzle loads
+    if (typeof showLoadingTip === 'function') { showLoadingTip(); }
 
     getPuzzle()
         .then(function (url) {
@@ -101,24 +99,21 @@ function loadNextLadderPuzzle() {
             };
             img.src = url;
 
-            if (statusMsg) statusMsg.textContent = '';
             var input = document.getElementById('ladder-guess-input');
-            if (input) {
-                input.value = '';
-                input.focus();
-            }
+            if (input) { input.value = ''; input.focus(); }
         })
-        .catch(function (error) {
+        .catch(function () {
             if (loader) loader.style.display = 'none';
             if (statusMsg) {
-                statusMsg.textContent = error.message;
-                statusMsg.className = 'status-msg error';
+                statusMsg.textContent = 'Could not load puzzle. Please refresh the page.';
+                statusMsg.className   = 'status-line error';
             }
         });
 }
 
 /**
- * Attaches form submission and guess checking logic.
+ * Attaches form submit logic with sound + encouragement toast on
+ * both correct AND wrong answers so the player always gets feedback.
  */
 function setupLadderEvents() {
     var form = document.getElementById('ladder-form');
@@ -129,17 +124,19 @@ function setupLadderEvents() {
 
         if (isSubmitting) return;
 
-        var input = document.getElementById('ladder-guess-input');
+        var input     = document.getElementById('ladder-guess-input');
         var statusMsg = document.getElementById('ladder-status-msg');
-        var rewardBadge = document.getElementById('potential-reward-badge');
         var submitBtn = document.getElementById('btn-ladder-submit');
         var guessText = input.value.trim();
 
         if (!/^[0-9]$/.test(guessText)) {
-            statusMsg.textContent = 'Please enter a digit from 0 to 9.';
-            statusMsg.className = 'status-msg error';
+            statusMsg.textContent = 'Please enter a single digit (0–9).';
+            statusMsg.className   = 'status-line error';
             return;
         }
+
+        // Click sound the moment the player submits
+        if (typeof playSound === 'function') { playSound('click'); }
 
         isSubmitting = true;
         submitBtn.disabled = true;
@@ -150,45 +147,50 @@ function setupLadderEvents() {
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ guess: Number(guessText) })
         })
-            .then(function (response) {
-                return response.json();
-            })
+            .then(function (res) { return res.json(); })
             .then(function (result) {
                 if (!result.correct) {
-                    // Wrong answer: chip away potential points, retry same puzzle!
-                    statusMsg.textContent = result.message + ' (Mistake #' + result.attempts + ')';
-                    statusMsg.className = 'status-msg error';
-                    rewardBadge.textContent = '⭐ Potential: +' + result.potential_points + ' pts';
+                    // Wrong answer — buzz + encouraging toast to keep morale up
+                    statusMsg.textContent = '✗ Wrong answer — try again!';
+                    statusMsg.className   = 'status-line error';
                     input.select();
+
+                    if (typeof playSound === 'function') { playSound('strike'); }
+
+                    // Toast: encouragement even on wrong so the player doesn't feel bad
+                    if (typeof fetchAndShowToast === 'function') {
+                        fetchAndShowToast(Number(guessText), '💪 Keep trying!');
+                    }
+
                 } else {
-                    // Correct answer: award points and advance node
-                    statusMsg.textContent = '🎉 ' + result.message + ' +' + result.points_earned + ' pts!';
-                    statusMsg.className = 'status-msg success';
+                    // Correct answer — celebrate with points + jingle + toast
+                    statusMsg.textContent = '🎉 +' + result.points_earned + ' pts!';
+                    statusMsg.className   = 'status-line correct';
 
                     totalLadderPoints = result.total_ladder_points;
                     currentLadderNode = result.next_node;
 
-                    // Update UI stats
-                    var pointsEl = document.getElementById('header-ladder-points');
+                    var pointsEl  = document.getElementById('header-ladder-points');
                     var nodeIndEl = document.getElementById('header-node-indicator');
-                    var activeTitleEl = document.getElementById('active-node-title');
-
-                    if (pointsEl) pointsEl.textContent = totalLadderPoints.toLocaleString();
-                    if (nodeIndEl) nodeIndEl.textContent = 'Node #' + currentLadderNode;
-                    if (activeTitleEl) activeTitleEl.textContent = 'Active: Node #' + currentLadderNode;
-                    rewardBadge.textContent = '⭐ Potential: +50 pts';
+                    if (pointsEl)  pointsEl.textContent  = totalLadderPoints.toLocaleString();
+                    if (nodeIndEl) nodeIndEl.textContent  = 'Node #' + currentLadderNode;
 
                     renderSteppingStones(currentLadderNode);
 
-                    // Load next node puzzle after a short celebration pause
-                    setTimeout(function () {
-                        loadNextLadderPuzzle();
-                    }, 1000);
+                    if (typeof playSound === 'function') { playSound('levelup'); }
+
+                    // Toast: affirmation + number fact for the digit they just solved
+                    if (typeof fetchAndShowToast === 'function') {
+                        fetchAndShowToast(Number(guessText), '✓ Correct!');
+                    }
+
+                    // Load next puzzle after a short celebration pause
+                    setTimeout(function () { loadNextLadderPuzzle(); }, 1200);
                 }
             })
-            .catch(function (err) {
-                statusMsg.textContent = err.message;
-                statusMsg.className = 'status-msg error';
+            .catch(function () {
+                statusMsg.textContent = 'Could not submit answer. Check your connection.';
+                statusMsg.className   = 'status-line error';
             })
             .finally(function () {
                 isSubmitting = false;
@@ -197,7 +199,7 @@ function setupLadderEvents() {
     });
 }
 
-// Start ladder mode on window load
+// Boot ladder mode once the DOM is fully loaded
 window.addEventListener('load', function () {
     renderSteppingStones(1);
     loadLadderState();
