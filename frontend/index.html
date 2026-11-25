@@ -3,135 +3,467 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Banana Puzzle Arena – Welcome</title>
+    <title>Banana Puzzle Arena – Feature Showcase & Coursework Demonstration</title>
     <link rel="stylesheet" href="style.css">
     <style>
-        .landing-container {
-            max-width: 650px;
-            margin: 2.5rem auto;
-            padding: 2rem;
-            background: #fdfdfd;
-            border: 2px solid #2c3e50;
-            border-radius: 8px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        :root {
+            --bg-dark: #161512;
+            --bg-card: #262421;
+            --bg-card-hover: #312e2b;
+            --accent-green: #81b64c;
+            --accent-green-hover: #9ecb6b;
+            --accent-orange: #f28b24;
+            --accent-blue: #3d85c6;
+            --text-light: #ffffff;
+            --text-muted: #bababa;
+            --border-color: #36322d;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-light);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            margin: 0;
+            padding: 1.5rem 1rem 3rem 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            box-sizing: border-box;
+        }
+
+        .showcase-container {
+            width: 100%;
+            max-width: 1060px;
+            display: flex;
+            flex-direction: column;
+            gap: 1.75rem;
+        }
+
+        /* Hero Header */
+        .hero-banner {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 2.2rem 2rem;
             text-align: center;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
         }
 
-        .landing-title {
-            font-size: 2.2rem;
-            margin-bottom: 0.5rem;
-            color: #2c3e50;
+        .hero-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            margin: 0 0 0.5rem 0;
+            color: var(--text-light);
+            letter-spacing: -0.5px;
         }
 
-        .landing-subtitle {
-            font-size: 1.1rem;
-            color: #555555;
-            margin-bottom: 2rem;
+        .hero-subtitle {
+            font-size: 1.15rem;
+            color: var(--text-muted);
+            margin: 0 0 1.5rem 0;
             line-height: 1.5;
         }
 
-        .action-group {
+        .hero-actions {
             display: flex;
             justify-content: center;
             gap: 1rem;
-            margin-bottom: 2.5rem;
             flex-wrap: wrap;
         }
 
-        .btn {
-            display: inline-block;
-            padding: 0.8rem 1.6rem;
+        .btn-hero {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.85rem 1.6rem;
             font-size: 1.05rem;
-            font-weight: bold;
+            font-weight: 800;
             text-decoration: none;
-            border-radius: 4px;
+            border-radius: 8px;
             cursor: pointer;
-            transition: background 0.2s, transform 0.1s;
+            transition: all 0.15s ease;
+            box-sizing: border-box;
         }
 
-        .btn-primary {
-            background: #27ae60;
+        .btn-hero.primary {
+            background: var(--accent-green);
             color: #ffffff;
-            border: 2px solid #27ae60;
+            border: none;
         }
 
-        .btn-primary:hover {
-            background: #219150;
+        .btn-hero.primary:hover {
+            background: var(--accent-green-hover);
+            transform: translateY(-2px);
         }
 
-        .btn-secondary {
-            background: #2c3e50;
+        .btn-hero.secondary {
+            background: #36322d;
             color: #ffffff;
-            border: 2px solid #2c3e50;
+            border: 1px solid #45423e;
         }
 
-        .btn-secondary:hover {
-            background: #1a252f;
+        .btn-hero.secondary:hover {
+            background: #45423e;
+            transform: translateY(-2px);
         }
 
-        .features-grid {
+        /* Marker Quick Demo Credentials Card */
+        .demo-credentials-card {
+            background: #1e1d1a;
+            border: 2px solid #81b64c;
+            border-radius: 12px;
+            padding: 1.4rem 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.8rem;
+        }
+
+        .demo-cred-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+        }
+
+        .demo-cred-title {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #81b64c;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .demo-accounts-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 1rem;
+        }
+
+        .account-badge {
+            background: #262421;
+            border: 1px solid #36322d;
+            border-radius: 8px;
+            padding: 0.85rem 1rem;
+            font-size: 0.95rem;
+        }
+
+        .account-badge code {
+            color: #e5c07b;
+            background: #1b1917;
+            padding: 0.15rem 0.4rem;
+            border-radius: 4px;
+            font-family: monospace;
+        }
+
+        /* Game Modes Showcase Grid */
+        .section-title {
+            font-size: 1.4rem;
+            font-weight: 800;
+            margin: 0.5rem 0 0 0;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modes-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
             gap: 1.25rem;
-            text-align: left;
-            margin-top: 1.5rem;
-            border-top: 1px solid #e0e0e0;
-            padding-top: 1.5rem;
         }
 
-        .feature-card {
-            background: #f8f9fa;
-            border-radius: 6px;
-            padding: 1rem;
-            border-left: 4px solid #3498db;
+        .mode-card {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 10px;
+            padding: 1.3rem;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 1rem;
+            transition: all 0.2s ease;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .feature-card h3 {
-            margin: 0 0 0.5rem 0;
-            font-size: 1rem;
-            color: #2c3e50;
+        .mode-card:hover {
+            background: var(--bg-card-hover);
+            border-color: #81b64c;
+            transform: translateY(-3px);
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
         }
 
-        .feature-card p {
+        .mode-header {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .mode-icon {
+            font-size: 1.8rem;
+        }
+
+        .mode-name {
+            font-size: 1.15rem;
+            font-weight: 800;
+            color: #ffffff;
             margin: 0;
+        }
+
+        .mode-desc {
+            font-size: 0.92rem;
+            color: var(--text-muted);
+            line-height: 1.45;
+            margin: 0;
+        }
+
+        .mode-pill {
+            display: inline-block;
+            font-size: 0.78rem;
+            font-weight: 800;
+            padding: 0.25rem 0.6rem;
+            border-radius: 4px;
+            align-self: flex-start;
+        }
+
+        .pill-ladder { background: #2b3a4a; color: #5dade2; }
+        .pill-rush { background: #3d301b; color: #f39c12; }
+        .pill-battle { background: #2f3b23; color: #81b64c; }
+        .pill-board { background: #33273d; color: #af7ac5; }
+
+        /* Thematic Defense Matrix */
+        .themes-matrix {
+            background: var(--bg-card);
+            border: 1px solid var(--border-color);
+            border-radius: 12px;
+            padding: 1.8rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+        }
+
+        .theme-item {
+            border-left: 4px solid var(--accent-green);
+            padding-left: 1.25rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.35rem;
+        }
+
+        .theme-item.blue { border-left-color: var(--accent-blue); }
+        .theme-item.orange { border-left-color: var(--accent-orange); }
+        .theme-item.purple { border-left-color: #af7ac5; }
+
+        .theme-header {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: #ffffff;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .theme-body {
             font-size: 0.9rem;
-            color: #666666;
-            line-height: 1.4;
+            color: var(--text-muted);
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        .theme-body strong {
+            color: #ffffff;
+        }
+
+        /* Test Runner Quick Card */
+        .test-harness-box {
+            background: #1b1917;
+            border: 1px solid #45423e;
+            border-radius: 10px;
+            padding: 1.2rem 1.5rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+        }
+
+        .test-text {
+            display: flex;
+            flex-direction: column;
+            gap: 0.3rem;
+        }
+
+        .test-title {
+            font-weight: 800;
+            font-size: 1.05rem;
+            color: #ffffff;
+        }
+
+        .test-sub {
+            font-size: 0.88rem;
+            color: #888888;
+        }
+
+        .test-cmd {
+            background: #11100e;
+            border: 1px solid #333333;
+            color: #81b64c;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 0.95rem;
+            font-weight: bold;
         }
     </style>
 </head>
 <body>
-    <main>
-        <div class="landing-container">
-            <h1 class="landing-title">🍌 Banana Puzzle Arena</h1>
-            <p class="landing-subtitle">
-                Solve, sprint, and battle with arithmetic riddles in Chess.com-style competitive modes!
+    <div class="showcase-container">
+        <!-- Hero Header -->
+        <header class="hero-banner">
+            <h1 class="hero-title">🍌 Banana Puzzle Arena</h1>
+            <p class="hero-subtitle">
+                CIS046-3 Software for Enterprise — Academic Coursework & Demonstration Hub.<br>
+                A Chess.com-style competitive arithmetic puzzle arena built with defensible plain PHP &amp; JavaScript.
             </p>
+            <div class="hero-actions">
+                <a href="arena.html" class="btn-hero primary">▶ Enter Arena Hub</a>
+                <a href="login.html" class="btn-hero secondary">👤 Sign In / Register</a>
+                <a href="leaderboard.html" class="btn-hero secondary">🏆 Leaderboards</a>
+            </div>
+        </header>
 
-            <div class="action-group">
-                <a href="arena.html" class="btn btn-primary" id="btn-play">▶ Enter Arena</a>
-                <a href="login.html" class="btn btn-secondary" id="btn-auth">👤 Login / Register</a>
+        <!-- Pre-Seeded Marker Demo Credentials -->
+        <section class="demo-credentials-card" aria-label="Pre-seeded Demonstration Credentials">
+            <div class="demo-cred-header">
+                <div class="demo-cred-title">
+                    <span>⚡ Instant Marker Demonstration Accounts</span>
+                </div>
+                <span style="font-size: 0.85rem; color: #bababa;">Multiplayer Elo Range: ±200 Points</span>
+            </div>
+            <p style="margin: 0; font-size: 0.9rem; color: #bababa; line-height: 1.45;">
+                Demonstrate real-time 1v1 matchmaking by opening two separate browser windows (or one incognito window) with the pre-seeded credentials below:
+            </p>
+            <div class="demo-accounts-grid">
+                <div class="account-badge">
+                    <strong>Browser 1 (Player A):</strong><br>
+                    Username: <code>pilot_player</code><br>
+                    Password: <code>password123</code> &nbsp;(Rating: 500 Elo)
+                </div>
+                <div class="account-badge">
+                    <strong>Browser 2 (Player B):</strong><br>
+                    Username: <code>rival_player</code><br>
+                    Password: <code>password123</code> &nbsp;(Rating: 515 Elo)
+                </div>
+            </div>
+        </section>
+
+        <!-- Game Modes Grid -->
+        <h2 class="section-title">🎮 Demonstratable Game Modes</h2>
+        <section class="modes-grid">
+            <a href="classic.html" class="mode-card">
+                <div>
+                    <div class="mode-header">
+                        <span class="mode-icon">🪜</span>
+                        <h3 class="mode-name">Classic Ladder</h3>
+                    </div>
+                    <p class="mode-desc">
+                        Adventure trail mode. Solve riddles at each step. 50pts on first attempt; wrong guesses chip away 15pts with retries down to a 10pt floor.
+                    </p>
+                </div>
+                <span class="mode-pill pill-ladder">Theme 1 &amp; 3: Identity + Chip Events</span>
+            </a>
+
+            <a href="rush.html" class="mode-card">
+                <div>
+                    <div class="mode-header">
+                        <span class="mode-icon">⚡</span>
+                        <h3 class="mode-name">Puzzle Rush</h3>
+                    </div>
+                    <p class="mode-desc">
+                        Timed arithmetic speed sprints (1m, 5m, 10m) and Survival Mode. 3 strikes and you are out. Live score counter with instant puzzle cache delivery.
+                    </p>
+                </div>
+                <span class="mode-pill pill-rush">Theme 2 &amp; 3: Cache + Survival Events</span>
+            </a>
+
+            <a href="battle.html" class="mode-card">
+                <div>
+                    <div class="mode-header">
+                        <span class="mode-icon">⚔️</span>
+                        <h3 class="mode-name">1v1 Puzzle Battle</h3>
+                    </div>
+                    <p class="mode-desc">
+                        Real-time duel with Elo-based matchmaking. Dual-browser sync, live opponent HUD race bar, 3 strikes limit, and Challenger Bot sparring fallback.
+                    </p>
+                </div>
+                <span class="mode-pill pill-battle">Theme 1, 2 &amp; 3: Elo Queue + Duel Sync</span>
+            </a>
+
+            <a href="leaderboard.html" class="mode-card">
+                <div>
+                    <div class="mode-header">
+                        <span class="mode-icon">🏆</span>
+                        <h3 class="mode-name">Multi-Leaderboards</h3>
+                    </div>
+                    <p class="mode-desc">
+                        Explore podium medal rankings across Rush High Scores, 1v1 Battle Elo ratings, and Classic Ladder points with personal authenticated standing.
+                    </p>
+                </div>
+                <span class="mode-pill pill-board">Theme 1 &amp; 2: Persistence + REST Index</span>
+            </a>
+        </section>
+
+        <!-- The Four Enterprise Themes Defense Matrix -->
+        <h2 class="section-title">🏛️ Enterprise Architecture &amp; The Four Themes</h2>
+        <section class="themes-matrix">
+            <div class="theme-item">
+                <div class="theme-header">
+                    <span>1. Virtual Identity</span>
+                </div>
+                <p class="theme-body">
+                    <strong>Bcrypt Password Hashing &amp; Session Fixation Immunity:</strong> Implements <code>password_hash(PASSWORD_BCRYPT)</code> with salted 60-character hashes ($2y$ prefix, cost 12) resistant to rainbow table attacks. Authenticated logins invoke <code>session_regenerate_id(true)</code> to prevent session hijacking. User identity, battle Elo, and high scores persist in a relational MySQL database via PDO prepared statements.
+                </p>
             </div>
 
-            <div class="features-grid">
-                <div class="feature-card">
-                    <h3>🪜 Classic Ladder</h3>
-                    <p>Casual adventure trail. 50 points on 1st attempt; wrong guesses chip away with retries.</p>
+            <div class="theme-item blue">
+                <div class="theme-header">
+                    <span>2. Interoperability</span>
                 </div>
-                <div class="feature-card">
-                    <h3>⚡ Puzzle Rush</h3>
-                    <p>Fast-paced 1m, 5m, 10m sprints and Survival mode against the clock with 3 strikes.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>⚔️ Puzzle Battle</h3>
-                    <p>Real-time 1v1 duels with live opponent HUD race bars and Elo ratings.</p>
-                </div>
-                <div class="feature-card">
-                    <h3>🏆 Multi-Leaderboards</h3>
-                    <p>Track your Rush Best, Battle Rating, and Ladder Points across global rankings.</p>
-                </div>
+                <p class="theme-body">
+                    <strong>External REST Proxy, Anti-Cheat Tokens &amp; Sub-10ms Session Cache:</strong> Connects to the external Banana Riddle API through a secure server-side proxy (<code>api/puzzle.php</code>). Strips solution digits on the server to prevent client-side inspection cheats and stores a single-use token in session memory. Implements low-latency cache prefetching and an Elo matchmaking queue (pairs within $\pm$200 Elo tolerance with a 10s heartbeat TTL).
+                </p>
             </div>
-        </div>
-    </main>
+
+            <div class="theme-item orange">
+                <div class="theme-header">
+                    <span>3. Event Handling</span>
+                </div>
+                <p class="theme-body">
+                    <strong>State Machine Transitions &amp; Bidirectional Duel Synchronization:</strong> Classic Ladder manages a state machine for mistake events that chip potential points ($50 \to 35 \to 20 \to 10$). Puzzle Rush listens for strikeout events to trigger Game Over states. Puzzle Battle runs a 1.5s room synchronization loop updating opponent scores and strikes live on a dual race bar, with native DOM digit click dispatchers.
+                </p>
+            </div>
+
+            <div class="theme-item purple">
+                <div class="theme-header">
+                    <span>4. Version Control</span>
+                </div>
+                <p class="theme-body">
+                    <strong>Disciplined Git Feature Branching &amp; Defense Test Harness:</strong> Developed across clear, thematic git branches (<code>feature/banana-puzzle-arena</code>, <code>feature/classic-ladder</code>, <code>feature/puzzle-rush</code>, <code>feature/puzzle-battle</code>, <code>feature/leaderboards</code>). Includes an automated CLI test harness with 33 passing test assertions proving every contract.
+                </p>
+            </div>
+        </section>
+
+        <!-- Test Runner Quick Guidance -->
+        <section class="test-harness-box">
+            <div class="test-text">
+                <span class="test-title">🧪 Run Automated Verification Tests</span>
+                <span class="test-sub">Executes all 33 unit and thematic integration tests across all four themes:</span>
+            </div>
+            <code class="test-cmd">php tests/run_tests.php</code>
+        </section>
+    </div>
 </body>
 </html>
